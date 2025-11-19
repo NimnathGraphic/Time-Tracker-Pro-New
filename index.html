@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeTrack Pro - Employee Time Management System (AU)</title>
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Internal Stylesheet (Refactored and Organized) -->
+    <style>
+        /* 1. Global Variables and Resets */
+        :root {
+            --primary: #007bff; /* Deep Blue */
+            --primary-dark: #0056b3;
+            --secondary: #ffc107; /* Bright Gold */
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 2. Login Page Styles */
+        .login-page {
+            display: grid;
+            height: 100vh;
+            width: 100%;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+            overflow: hidden;
+        }
+        .login-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+            transition: var(--transition);
+        }
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 80px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+        .login-form {
+            padding: 30px 40px 40px 40px;
+        }
+        .login-form .field {
+            margin-top: 20px;
+            position: relative;
+        }
+        .login-form input {
+            height: 50px;
+            width: 100%;
+            padding: 0 20px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        .login-form input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        .login-form label {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            transition: var(--transition);
+            background: white;
+            padding: 0 5px;
+            color: var(--gray);
+            pointer-events: none;
+        }
+        .login-form input:focus ~ label,
+        .login-form input:valid ~ label {
+            top: -8px;
+            font-size: 14px;
+            color: var(--primary);
+        }
+        .login-form input[type="submit"] {
+            color: #fff;
+            border: none;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+        .login-form input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        /* 3. Header and Navigation Styles */
+        header {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.2rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .logo i {
+            color: var(--secondary);
+            margin-right: 8px;
+        }
+        .user-info {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: var(--border-radius);
+            transition: background-color 0.2s;
+        }
+        .user-info:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            min-width: 200px;
+            z-index: 1000;
+            margin-top: 10px;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--dark);
+            text-decoration: none;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .dropdown-menu a:hover {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+
+        nav {
+            background-color: white;
+            padding: 0.8rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        .nav-tabs li {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-tabs li.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        .nav-tabs li:hover:not(.active) {
+            background-color: var(--gray-light);
+        }
+
+        /* 4. Main Content and Card Styles */
+        main {
+            padding: 2rem 0;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            border-left: 5px solid var(--primary);
+            transition: var(--transition);
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .live-clock {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 20px 0 10px 0;
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        .current-date {
+            font-size: 1rem;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        /* 5. Form and Button Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .form-group input:not([type="checkbox"]), .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        .btn-secondary:hover {
+            background-color: #e0a800;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+        }
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+
+        /* 6. Table and Data Display Styles */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            min-width: 800px; /* Ensures horizontal scroll on mobile */
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        thead th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+        .status-present { background-color: var(--success); }
+        .status-break { background-color: var(--warning); color: var(--dark); }
+        .status-absent { background-color: var(--danger); }
+
+        /* 7. Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal.active {
+            display: block;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            border-top: 5px solid var(--secondary);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            padding-bottom: 10px;
+        }
+        .close-btn {
+            color: var(--gray);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: var(--transition);
+        }
+        .close-btn:hover {
+            color: var(--danger);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* 8. Utility and Custom Components */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
+        }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .employee-search-container {
+            position: relative;
+        }
+        .employee-dropdown-list {
+            display: none;
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid var(--gray-light);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+        .employee-dropdown-list.active {
+            display: block;
+        }
+        .employee-dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .employee-dropdown-item:hover {
+            background-color: var(--gray-light);
+        }
+        .employee-id {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        .full-access-badge {
+            background-color: var(--danger);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: flash 1s infinite alternate;
+        }
+        .manager-badge {
+            background-color: var(--info);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        @keyframes flash {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+        .manager-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .manager-item:last-child {
+            border-bottom: none;
+        }
+        .manager-info strong {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+        }
+        .manager-info span {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid var(--gray-light);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* 9. Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .live-clock {
+                font-size: 2.5rem;
+            }
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .user-info {
+                padding: 0;
+            }
+            .nav-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+            .nav-tabs li {
+                flex-shrink: 0;
+            }
+            .table-responsive table {
+                min-width: 800px; /* Ensures horizontal scroll on mobile */
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== WATERMARK (For branding) ========== -->
+    <div class="watermark" style="position: fixed; bottom: 20px; right: 20px; font-size: 12px; color: rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 1; text-align: right;">
+        <span class="watermark-text">© Nimnath Graphics</span>
+        <span class="watermark-text">TimeTrack Pro (AU)</span>
+    </div>
+
+    <!-- ========== LOGIN PAGE ========== -->
+    <div id="loginPage" class="login-page">
+        <div class="login-wrapper">
+            <div class="login-title"><i class="fas fa-clock"></i> TimeTrack Pro (AU)</div>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="field">
+                    <input type="text" id="loginUsername" required>
+                    <label>Username</label>
+                </div>
+                <div class="field">
+                    <input type="password" id="loginPassword" required>
+                    <label>Password</label>
+                </div>
+                <div class="login-content" style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                    <div class="checkbox">
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me" style="position: static; transform: none; padding-left: 8px;">Remember me</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <input type="submit" value="Login">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APPLICATION ========== -->
+    <div id="mainApp" style="display: none;">
+        <!-- HEADER -->
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-clock"></i>
+                        <span>TimeTrack Pro</span>
+                    </div>
+                    <div class="user-info user-dropdown" onclick="toggleDropdown()">
+                        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <div class="user-avatar" style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <div id="currentUserName"></div>
+                                <div style="font-size: 0.85rem; opacity: 0.8;" id="currentUserRole"></div>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="#" onclick="switchTab(event, 'settings')">Settings</a>
+                            <a href="#" onclick="logout()">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVIGATION -->
+        <nav>
+            <div class="container">
+                <ul class="nav-tabs" id="navTabs">
+                    <li class="active" onclick="switchTab(event, 'dashboard')">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </li>
+                    <li id="employeesTab" onclick="switchTab(event, 'employees')">
+                        <i class="fas fa-users"></i> Employees
+                    </li>
+                    <li id="reportsTab" onclick="switchTab(event, 'reports')">
+                        <i class="fas fa-file-chart-bar"></i> Reports
+                    </li>
+                    <li id="shopsTab" onclick="switchTab(event, 'shops')">
+                        <i class="fas fa-store"></i> Shops
+                    </li>
+                    <li id="settingsTab" onclick="switchTab(event, 'settings')">
+                        <i class="fas fa-cog"></i> Settings
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            <div class="container">
+                <!-- DASHBOARD TAB -->
+                <div id="dashboard" class="tab-content active">
+                    <div class="dashboard">
+                        <!-- Time Clock Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Time Clock</h2>
+                                <button class="btn btn-small btn-secondary" onclick="openModal('manualEntryModal')">
+                                    <i class="fas fa-edit"></i> Manual Entry
+                                </button>
+                            </div>
+                            <div class="live-clock" id="liveClock">00:00:00</div>
+                            <div class="current-date" id="currentDate"></div>
+                            
+                            <form onsubmit="submitTimeEntry(event)">
+                                <div class="form-group">
+                                    <label for="employeeSearch">Employee</label>
+                                    <div class="employee-search-container">
+                                        <input type="text" id="employeeSearch" class="employee-search-input" placeholder="Search employee..." onfocus="showEmployeeDropdown()" oninput="filterEmployeeDropdown()" required>
+                                        <input type="hidden" id="selectedEmployeeId">
+                                        <div class="employee-dropdown-list" id="employeeDropdownList">
+                                            <!-- Employee items will be populated here by JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="entryType">Entry Type</label>
+                                    <select id="entryType" required>
+                                        <option value="">Select...</option>
+                                        <option value="clock-in">Clock In</option>
+                                        <option value="clock-out">Clock Out</option>
+                                        <option value="break-start">Break Start</option>
+                                        <option value="break-end">Break End</option>
+                                    </select>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check-circle"></i> Submit Entry
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Employee Status Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Current Status</h2>
+                                <div class="search-box">
+                                    <input type="text" id="searchEmployee" placeholder="Search employee status..." oninput="filterEmployeeTable()">
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="statusTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Shop</th>
+                                            <th>Status</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employeeTableBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EMPLOYEES TAB -->
+                <div id="employees" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Employee Management</h2>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="openModal('addEmployeeModal')">
+                                    <i class="fas fa-user-plus"></i> Add New Employee
+                                </button>
+                            </div>
+                        </div>
+                        <div class="search-box" style="max-width: 100%; margin-bottom: 15px;">
+                            <input type="text" id="searchEmployeeList" placeholder="Search all employees..." oninput="filterEmployeeList()">
+                        </div>
+                        <div class="table-responsive">
+                            <table id="allEmployeesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Shop</th>
+                                        <th>Username</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allEmployeesTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Owner-only Manager List -->
+                    <div id="managerListCard" class="card" style="display: none; margin-top: 20px;">
+                        <div class="card-header">
+                            <h2>Manager Access Control</h2>
+                        </div>
+                        <div id="managerListBody">
+                            <!-- Dynamic Manager List -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REPORTS TAB -->
+                <div id="reports" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Time Reports</h2>
+                        </div>
+                        <div class="dashboard" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                            <div class="form-group">
+                                <label for="reportEmployee">Employee</label>
+                                <select id="reportEmployee">
+                                    <option value="all">All Employees</option>
+                                    <!-- Dynamic content -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportShop">Shop</label>
+                                <select id="reportShop">
+                                    <option value="all">All Shops</option>
+                                    <!-- Dynamic content -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportStart">Start Date</label>
+                                <input type="date" id="reportStart">
+                            </div>
+                            <div class="form-group">
+                                <label for="reportEnd">End Date</label>
+                                <input type="date" id="reportEnd">
+                            </div>
+                            <div class="form-group" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="updateReportPreview()">
+                                    <i class="fas fa-search"></i> Generate Report
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card" style="margin-top: 20px;">
+                            <h3>Report Preview</h3>
+                            <div class="summary-stats" id="reportSummaryStats">
+                                <!-- Dynamic content -->
+                            </div>
+                            <div class="table-responsive">
+                                <table id="reportTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Employee</th>
+                                            <th>Shop</th>
+                                            <th>Clock In</th>
+                                            <th>Clock Out</th>
+                                            <th>Break (hrs)</th>
+                                            <th>Work (hrs)</th>
+                                            <th>Weekend (hrs)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportTableBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-success" onclick="exportReportPDF()">
+                                    <i class="fas fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button class="btn btn-success" onclick="exportReportExcel()">
+                                    <i class="fas fa-file-excel"></i> Export Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SHOPS TAB -->
+                <div id="shops" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Shop Management</h2>
+                            <button class="btn btn-primary" onclick="openModal('addShopModal')">
+                                <i class="fas fa-plus"></i> Add New Shop
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="shopsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Location</th>
+                                        <th>Manager</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shopsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS TAB -->
+                <div id="settings" class="tab-content">
+                    <div class="dashboard">
+                        <!-- Change Password Card -->
+                        <div class="card" style="grid-column: 1 / -1; max-width: 500px; margin: 0 auto;">
+                            <div class="card-header">
+                                <h2>Change Password</h2>
+                            </div>
+                            <form onsubmit="event.preventDefault(); updatePassword();">
+                                <div class="form-group">
+                                    <label for="currentPassword">Current Password</label>
+                                    <input type="password" id="currentPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <input type="password" id="newPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <input type="password" id="confirmPassword" required>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-key"></i> Update Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== MODALS ========== -->
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Employee</h2>
+                <button class="close-btn" onclick="closeModal('addEmployeeModal')">&times;</button>
+            </div>
+            <form onsubmit="addEmployee(event)">
+                <div class="form-group">
+                    <label for="employeeName">Full Name</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <!-- Owner-only fields (or Manager with Full Access) -->
+                <div id="ownerEmployeeFields">
+                    <div class="form-group">
+                        <label for="employeeRole">Role</label>
+                        <select id="employeeRole" required onchange="toggleManagerFields(this.value)">
+                            <option value="Staff">Staff</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeShop">Shop Assignment</label>
+                        <select id="employeeShop" required>
+                            <!-- Dynamic content -->
+                        </select>
+                    </div>
+                    <div id="managerCredentials" style="display: none;">
+                        <div class="form-group">
+                            <label for="employeeUsername">Username</label>
+                            <input type="text" id="employeeUsername" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeePassword">Initial Password</label>
+                            <input type="text" id="employeePassword" required readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Employee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Employee: <span id="editEmployeeNameTitle"></span></h2>
+                <button class="close-btn" onclick="closeModal('editEmployeeModal')">&times;</button>
+            </div>
+            <form onsubmit="saveEmployeeChanges(event)">
+                <input type="hidden" id="editEmployeeIdHidden">
+                <div class="form-group">
+                    <label for="editEmployeeName">Full Name</label>
+                    <input type="text" id="editEmployeeName" required>
+                </div>
+                <div id="ownerEditFields">
+                    <div class="form-group">
+                        <label for="editEmployeeRole">Role</label>
+                        <select id="editEmployeeRole" required onchange="toggleFullAccess(this.value)">
+                            <option value="Staff">Staff</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Owner">Owner</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmployeeShop">Shop Assignment</label>
+                        <select id="editEmployeeShop" required>
+                            <!-- Dynamic content -->
+                        </select>
+                    </div>
+                    <!-- Owner-only Full Access Toggle -->
+                    <div class="form-group" id="fullAccessGroup" style="display: none;">
+                        <input type="checkbox" id="editEmployeeFullAccess" style="width: auto; margin-right: 10px;">
+                        <label for="editEmployeeFullAccess" style="display: inline;">Grant Full System Access (Owner Only)</label>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Shop Modal -->
+    <div id="addShopModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Shop</h2>
+                <button class="close-btn" onclick="closeModal('addShopModal')">&times;</button>
+            </div>
+            <form onsubmit="addShop(event)">
+                <div class="form-group">
+                    <label for="shopName">Shop Name</label>
+                    <input type="text" id="shopName" required>
+                </div>
+                <div class="form-group">
+                    <label for="shopLocation">Location/Address</label>
+                    <input type="text" id="shopLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="shopManager">Assign Manager</label>
+                    <select id="shopManager">
+                        <!-- Dynamic content -->
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Shop
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Shop Modal -->
+    <div id="editShopModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Shop: <span id="editShopNameTitle"></span></h2>
+                <button class="close-btn" onclick="closeModal('editShopModal')">&times;</button>
+            </div>
+            <form onsubmit="saveShopChanges(event)">
+                <input type="hidden" id="editShopIdHidden">
+                <div class="form-group">
+                    <label for="editShopName">Shop Name</label>
+                    <input type="text" id="editShopName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editShopLocation">Location/Address</label>
+                    <input type="text" id="editShopLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="editShopManager">Assign Manager</label>
+                    <select id="editShopManager">
+                        <!-- Dynamic content -->
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manual Time Entry Modal -->
+    <div id="manualEntryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manual Time Entry</h2>
+                <button class="close-btn" onclick="closeModal('manualEntryModal')">&times;</button>
+            </div>
+            <form onsubmit="submitManualTimeEntry(event)">
+                <div class="form-group">
+                    <label for="manualEmployeeSearch">Employee</label>
+                    <div class="employee-search-container">
+                        <input type="text" id="manualEmployeeSearch" class="employee-search-input" placeholder="Search employee..." onfocus="showManualEmployeeDropdown()" oninput="filterManualEmployeeDropdown()" required>
+                        <input type="hidden" id="manualSelectedEmployeeId">
+                        <div class="employee-dropdown-list" id="manualEmployeeDropdownList">
+                            <!-- Employee items will be populated here by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="manualEntryType">Entry Type</label>
+                    <select id="manualEntryType" required>
+                        <option value="">Select...</option>
+                        <option value="clock-in">Clock In</option>
+                        <option value="clock-out">Clock Out</option>
+                        <option value="break-start">Break Start</option>
+                        <option value="break-end">Break End</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="manualDate">Date (DD/MM/YYYY)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="manualDate" required>
+                        <button type="button" class="btn btn-info btn-small" onclick="setManualDateToToday()">
+                            <i class="fas fa-calendar-day"></i> Today
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="manualTime">Time (24h)</label>
+                    <input type="time" id="manualTime" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Submit Manual Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Internal JavaScript (Refactored and Organized) -->
+    <script>
+        // ====================================================================
+        // 1. GLOBAL DATA & LOCAL STORAGE MANAGEMENT
+        // ====================================================================
+        const LS_EMPLOYEES = 'employeesDatabase_v6';
+        const LS_SHOPS = 'shopsDatabase_v6';
+        const LS_ENTRIES = 'timeEntriesDatabase_v6';
+        const LS_LOGGED_IN_USER = 'loggedInUser_v6';
+
+        let employeesDatabase = [];
+        let shopsDatabase = [];
+        let timeEntriesDatabase = [];
+        let loggedInUser = null;
+
+        // Default Data for first run (Owner and Manager with Full Access)
+        const DEFAULT_EMPLOYEES = [
+            { id: 9999, name: 'System Owner', role: 'Owner', shopId: 0, username: 'owner', password: 'Owner@123', fullAccess: true },
+            { id: 1001, name: 'John Manager', role: 'Manager', shopId: 1, username: 'johnmanager', password: 'password123', fullAccess: false },
+            { id: 1002, name: 'Jane Staff', role: 'Staff', shopId: 1, username: 'janestaff', password: 'password123', fullAccess: false },
+            { id: 1003, name: 'Mike Staff', role: 'Staff', shopId: 2, username: 'mikestaff', password: 'password123', fullAccess: false }
+        ];
+        const DEFAULT_SHOPS = [
+            { id: 1, name: 'Shop A - Sydney', location: 'Sydney CBD', managerId: 1001 },
+            { id: 2, name: 'Shop B - Melbourne', location: 'Melbourne Southbank', managerId: null }
+        ];
+        const DEFAULT_ENTRIES = [
+            // Sample entry for John Manager (Shop 1)
+            { id: 1, employeeId: 1001, type: 'clock-in', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString() },
+            { id: 2, employeeId: 1001, type: 'break-start', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
+            { id: 3, employeeId: 1001, type: 'break-end', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() },
+            // Sample entry for Jane Staff (Shop 1)
+            { id: 4, employeeId: 1002, type: 'clock-in', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 9).toISOString() },
+        ];
+
+        function loadData() {
+            employeesDatabase = JSON.parse(localStorage.getItem(LS_EMPLOYEES)) || DEFAULT_EMPLOYEES;
+            shopsDatabase = JSON.parse(localStorage.getItem(LS_SHOPS)) || DEFAULT_SHOPS;
+            timeEntriesDatabase = JSON.parse(localStorage.getItem(LS_ENTRIES)) || DEFAULT_ENTRIES;
+            loggedInUser = JSON.parse(localStorage.getItem(LS_LOGGED_IN_USER));
+        }
+
+        function saveData() {
+            localStorage.setItem(LS_EMPLOYEES, JSON.stringify(employeesDatabase));
+            localStorage.setItem(LS_SHOPS, JSON.stringify(shopsDatabase));
+            localStorage.setItem(LS_ENTRIES, JSON.stringify(timeEntriesDatabase));
+        }
+
+        function saveLoggedInUser(user) {
+            localStorage.setItem(LS_LOGGED_IN_USER, JSON.stringify(user));
+            loggedInUser = user;
+        }
+
+        function getNextId(db) {
+            const maxId = db.reduce((max, item) => Math.max(max, item.id), 0);
+            return maxId + 1;
+        }
+
+        function getShopName(shopId) {
+            const shop = shopsDatabase.find(s => s.id === shopId);
+            return shop ? shop.name : 'Unassigned';
+        }
+
+        function getEmployeeName(empId) {
+            const employee = employeesDatabase.find(e => e.id === empId);
+            return employee ? employee.name : 'N/A';
+        }
+
+        function getEmployeeShopId(empId) {
+            const employee = employeesDatabase.find(e => e.id === empId);
+            return employee ? employee.shopId : null;
+        }
+
+        // ====================================================================
+        // 2. INITIALIZATION & UI RENDERING
+        // ====================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            updateClock();
+            updateDate();
+            checkLoginStatus();
+            renderAllUI();
+        });
+
+        function renderAllUI() {
+            updateRoleBasedUI();
+            populateDropdowns();
+            renderEmployeeTable();
+            renderShopsTable();
+            renderStatusTable();
+            renderManagerList();
+            updateReportPreview();
+        }
+
+        function updateRoleBasedUI() {
+            const isOwner = loggedInUser && loggedInUser.role === 'Owner';
+            const isManager = loggedInUser && loggedInUser.role === 'Manager';
+            const isManagerWithFullAccess = isManager && loggedInUser.fullAccess;
+            const canManage = isOwner || isManagerWithFullAccess;
+
+            // Navigation Tabs Visibility
+            document.getElementById('employeesTab').style.display = (isManager || canManage) ? 'flex' : 'none';
+            document.getElementById('reportsTab').style.display = (isManager || canManage) ? 'flex' : 'none';
+            document.getElementById('shopsTab').style.display = canManage ? 'flex' : 'none';
+            document.getElementById('settingsTab').style.display = 'flex';
+
+            // Employee Tab UI
+            const addEmployeeModal = document.getElementById('addEmployeeModal');
+            if (addEmployeeModal) {
+                // Hide owner-specific fields for regular managers
+                document.getElementById('ownerEmployeeFields').style.display = canManage ? 'block' : 'none';
+            }
+            document.getElementById('managerListCard').style.display = canManage ? 'block' : 'none';
+        }
+
+        // ====================================================================
+        // 3. AUTHENTICATION
+        // ====================================================================
+        function checkLoginStatus() {
+            if (loggedInUser) {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('currentUserName').textContent = loggedInUser.name;
+                document.getElementById('currentUserRole').textContent = loggedInUser.role + (loggedInUser.shopId ? ` (${getShopName(loggedInUser.shopId)})` : '');
+                switchTab(null, 'dashboard');
+            } else {
+                document.getElementById('loginPage').style.display = 'grid';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = employeesDatabase.find(emp => emp.username === username && emp.password === password);
+
+            if (user) {
+                saveLoggedInUser(user);
+                showAlert(`Welcome back, ${user.name}!`, 'success');
+                renderAllUI();
+                setTimeout(() => {
+                    document.getElementById('loginPage').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    document.getElementById('currentUserName').textContent = user.name;
+                    document.getElementById('currentUserRole').textContent = user.role + (user.shopId ? ` (${getShopName(user.shopId)})` : '');
+                }, 500);
+            } else {
+                showAlert('Invalid username or password.', 'danger');
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem(LS_LOGGED_IN_USER);
+                loggedInUser = null;
+                showAlert('Logging out...', 'success');
+                setTimeout(() => {
+                    document.getElementById('mainApp').style.display = 'none';
+                    document.getElementById('loginPage').style.display = 'grid';
+                    document.getElementById('loginUsername').value = '';
+                    document.getElementById('loginPassword').value = '';
+                }, 1000);
+            }
+        }
+
+        // ====================================================================
+        // 4. CLOCK & DATE (AUSTRALIAN LOCALIZATION)
+        // ====================================================================
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-AU', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true
+            });
+            const clockElement = document.getElementById('liveClock');
+            if (clockElement) {
+                clockElement.textContent = timeString;
+            }
+            setTimeout(updateClock, 1000);
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-AU', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = dateString;
+            }
+        }
+
+        // ====================================================================
+        // 5. EMPLOYEE & SHOP CRUD OPERATIONS
+        // ====================================================================
+
+        function getFilteredEmployees() {
+            const isOwner = loggedInUser && loggedInUser.role === 'Owner';
+            const isManager = loggedInUser && loggedInUser.role === 'Manager';
+            const isManagerWithFullAccess = isManager && loggedInUser.fullAccess;
+            const managerShopId = loggedInUser ? loggedInUser.shopId : null;
+
+            if (isOwner || isManagerWithFullAccess) {
+                return employeesDatabase;
+            } else if (isManager) {
+                // Manager can only see employees assigned to their shop
+                return employeesDatabase.filter(emp => emp.shopId === managerShopId);
+            }
+            return [];
+        }
+
+        function addEmployee(event) {
+            event.preventDefault();
+            const name = document.getElementById('employeeName').value;
+            
+            const isOwner = loggedInUser && loggedInUser.role === 'Owner';
+            const isManagerWithFullAccess = loggedInUser && loggedInUser.role === 'Manager' && loggedInUser.fullAccess;
+            const isManager = loggedInUser && loggedInUser.role === 'Manager';
+            const canManage = isOwner || isManagerWithFullAccess;
+
+            let role, shopId, username, password;
+
+            if (canManage) {
+                role = document.getElementById('employeeRole').value;
+                shopId = parseInt(document.getElementById('employeeShop').value);
+            } else if (isManager) {
+                role = 'Staff';
+                shopId = loggedInUser.shopId;
+            } else {
+                showAlert('Permission denied.', 'danger');
+                return;
+            }
+
+            const newId = getNextId(employeesDatabase);
+            username = name.toLowerCase().replace(/\s/g, '');
+            password = Math.random().toString(36).slice(-8);
+
+            if (employeesDatabase.some(emp => emp.username === username)) {
+                username += newId; // Simple conflict resolution
+            }
+
+            const newEmployee = {
+                id: newId,
+                name: name,
+                role: role,
+                shopId: shopId,
+                username: username,
+                password: password,
+                fullAccess: false
+            };
+            employeesDatabase.push(newEmployee);
+            saveData();
+            
+            let message = `Employee "${name}" (ID: ${newId}) has been added successfully!`;
+            if (role === 'Manager' || isManager) {
+                message += ` Credentials: Username: ${username}, Temp Password: ${password}`;
+            }
+            
+            showAlert(message, 'success');
+            closeModal('addEmployeeModal');
+            event.target.reset();
+            renderAllUI();
+        }
+
+        function openEditEmployeeModal(empId) {
+            const employee = employeesDatabase.find(emp => emp.id === empId);
+            if (!employee) {
+                showAlert(`Employee with ID ${empId} not found.`, 'danger');
+                return;
+            }
+
+            const isOwner = loggedInUser && loggedInUser.role === 'Owner';
+            const isManagerWithFullAccess = loggedInUser && loggedInUser.role === 'Manager' && loggedInUser.fullAccess;
+            const isManager = loggedInUser && loggedInUser.role === 'Manager';
+
+            // Manager can only edit name of staff in their shop
+            if (isManager && !isManagerWithFullAccess && employee.shopId !== loggedInUser.shopId) {
+                showAlert('Permission denied. You can only edit employees in your assigned shop.', 'danger');
+                return;
+            }
+
+            document.getElementById('editEmployeeIdHidden').value = employee.id;
+            document.getElementById('editEmployeeNameTitle').textContent = employee.name;
+            document.getElementById('editEmployeeName').value = employee.name;
+            
+            if (isOwner || isManagerWithFullAccess) {
+                document.getElementById('editEmployeeRole').value = employee.role;
+                document.getElementById('editEmployeeShop').value = employee.shopId;
+                
+                const fullAccessGroup = document.getElementById('fullAccessGroup');
+                const fullAccessCheckbox = document.getElementById('editEmployeeFullAccess');
+                
+                if (employee.role === 'Owner' || employee.role === 'Manager') {
+                    fullAccessGroup.style.display = 'block';
+                    fullAccessCheckbox.checked = employee.fullAccess;
+                } else {
+                    fullAccessGroup.style.display = 'none';
+                    fullAccessCheckbox.checked = false;
+                }
+            }
+
+            openModal('editEmployeeModal');
+        }
+
+        function saveEmployeeChanges(event) {
+            event.preventDefault();
+            const empId = parseInt(document.getElementById('editEmployeeIdHidden').value);
+            const newName = document.getElementById('editEmployeeName').value;
+
+            const employeeIndex = employeesDatabase.findIndex(emp => emp.id === empId);
+            if (employeeIndex === -1) {
+                showAlert(`Error: Employee with ID ${empId} not found.`, 'danger');
+                return;
+            }
+
+            employeesDatabase[employeeIndex].name = newName;
+
+            const isOwner = loggedInUser && loggedInUser.role === 'Owner';
+            const isManagerWithFullAccess = loggedInUser && loggedInUser.role === 'Manager' && loggedInUser.fullAccess;
+
+            if (isOwner || isManagerWithFullAccess) {
+                const newRole = document.getElementById('editEmployeeRole').value;
+                const newShopId = parseInt(document.getElementById('editEmployeeShop').value);
+                const newFullAccess = document.getElementById('editEmployeeFullAccess').checked;
+
+                employeesDatabase[employeeIndex].role = newRole;
+                employeesDatabase[employeeIndex].shopId = newShopId;
+                employeesDatabase[employeeIndex].fullAccess = (newRole === 'Owner' || newRole === 'Manager') ? newFullAccess : false;
+            }
+
+            saveData();
+            showAlert(`Employee ${newName} (ID: ${empId}) updated successfully!`, 'success');
+            closeModal('editEmployeeModal');
+            renderAllUI();
+        }
+
+        function deleteEmployee(empId) {
+            if (confirm(`Are you sure you want to delete employee ${getEmployeeName(empId)}?`)) {
+                employeesDatabase = employeesDatabase.filter(emp => emp.id !== empId);
+                const shopIndex = shopsDatabase.findIndex(s => s.managerId === empId);
+                if (shopIndex !== -1) {
+                    shopsDatabase[shopIndex].managerId = null;
+                }
+                saveData();
+                showAlert(`Employee ${empId} has been deleted`, 'success');
+                renderAllUI();
+            }
+        }
+
+        function addShop(event) {
+            event.preventDefault();
+            const name = document.getElementById('shopName').value;
+            const location = document.getElementById('shopLocation').value;
+            const managerId = document.getElementById('shopManager').value ? parseInt(document.getElementById('shopManager').value) : null;
+
+            const newId = getNextId(shopsDatabase);
+            const newShop = {
+                id: newId,
+                name: name,
+                location: location,
+                managerId: managerId
+            };
+            shopsDatabase.push(newShop);
+
+            if (managerId) {
+                const managerIndex = employeesDatabase.findIndex(emp => emp.id === managerId);
+                if (managerIndex !== -1) {
+                    employeesDatabase[managerIndex].shopId = newId;
+                }
+            }
+
+            saveData();
+            showAlert(`Shop "${name}" has been added successfully!`, 'success');
+            closeModal('addShopModal');
+            event.target.reset();
+            renderAllUI();
+        }
+
+        function openEditShopModal(shopId) {
+            const shop = shopsDatabase.find(s => s.id === shopId);
+            if (!shop) {
+                showAlert(`Shop with ID ${shopId} not found.`, 'danger');
+                return;
+            }
+
+            document.getElementById('editShopIdHidden').value = shop.id;
+            document.getElementById('editShopNameTitle').textContent = shop.name;
+            document.getElementById('editShopName').value = shop.name;
+            document.getElementById('editShopLocation').value = shop.location;
+            
+            // Repopulate manager dropdown for this modal
+            const managerSelect = document.getElementById('editShopManager');
+            managerSelect.innerHTML = '<option value="">Unassigned</option>';
+            employeesDatabase.filter(emp => emp.role === 'Manager').forEach(manager => {
+                const option = document.createElement('option');
+                option.value = manager.id;
+                option.textContent = manager.name;
+                managerSelect.appendChild(option);
+            });
+            managerSelect.value = shop.managerId || '';
+
+            openModal('editShopModal');
+        }
+
+        function saveShopChanges(event) {
+            event.preventDefault();
+            const shopId = parseInt(document.getElementById('editShopIdHidden').value);
+            const newName = document.getElementById('editShopName').value;
+            const newLocation = document.getElementById('editShopLocation').value;
+            const newManagerId = document.getElementById('editShopManager').value ? parseInt(document.getElementById('editShopManager').value) : null;
+
+            const shopIndex = shopsDatabase.findIndex(s => s.id === shopId);
+            if (shopIndex === -1) {
+                showAlert(`Error: Shop with ID ${shopId} not found.`, 'danger');
+                return;
+            }
+
+            const oldManagerId = shopsDatabase[shopIndex].managerId;
+
+            // Update shop details
+            shopsDatabase[shopIndex].name = newName;
+            shopsDatabase[shopIndex].location = newLocation;
+            shopsDatabase[shopIndex].managerId = newManagerId;
+
+            // Update old manager's shopId
+            if (oldManagerId && oldManagerId !== newManagerId) {
+                const oldManagerIndex = employeesDatabase.findIndex(emp => emp.id === oldManagerId);
+                if (oldManagerIndex !== -1) {
+                    employeesDatabase[oldManagerIndex].shopId = null;
+                }
+            }
+
+            // Update new manager's shopId
+            if (newManagerId) {
+                const newManagerIndex = employeesDatabase.findIndex(emp => emp.id === newManagerId);
+                if (newManagerIndex !== -1) {
+                    employeesDatabase[newManagerIndex].shopId = shopId;
+                }
+            }
+
+            saveData();
+            showAlert(`Shop ${newName} (ID: ${shopId}) updated successfully!`, 'success');
+            closeModal('editShopModal');
+            renderAllUI();
+        }
+
+        function deleteShop(shopId) {
+            if (confirm(`Are you sure you want to delete shop ${getShopName(shopId)}? This will unassign all employees from this shop.`)) {
+                shopsDatabase = shopsDatabase.filter(shop => shop.id !== shopId);
+                employeesDatabase.forEach(emp => {
+                    if (emp.shopId === shopId) {
+                        emp.shopId = null;
+                    }
+                });
+                saveData();
+                showAlert(`Shop ${shopId} has been deleted`, 'success');
+                renderAllUI();
+            }
+        }
+
+        // ====================================================================
+        // 6. TIME ENTRY LOGIC
+        // ====================================================================
+
+        function submitTimeEntry(event) {
+            event.preventDefault();
+            
+            const employeeId = parseInt(document.getElementById('selectedEmployeeId').value);
+            const employeeName = document.getElementById('employeeSearch').value;
+            const entryType = document.getElementById('entryType').value;
+            
+            if (!employeeId || !entryType) {
+                showAlert('Please select an employee and entry type', 'danger');
+                return;
+            }
+
+            const newEntry = {
+                id: getNextId(timeEntriesDatabase),
+                employeeId: employeeId,
+                type: entryType,
+                timestamp: new Date().toISOString(),
+            };
+            timeEntriesDatabase.push(newEntry);
+            saveData();
+            
+            const timeString = new Date(newEntry.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true });
+            showAlert(`Live Time Entry Recorded: ${employeeName} - ${entryType} at ${timeString}`, 'success');
+            event.target.reset();
+            document.getElementById('selectedEmployeeId').value = '';
+            renderStatusTable();
+        }
+
+        function setManualDateToToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('manualDate').value = today;
+        }
+
+        function submitManualTimeEntry(event) {
+            event.preventDefault();
+            
+            const employeeId = parseInt(document.getElementById('manualSelectedEmployeeId').value);
+            const employeeName = document.getElementById('manualEmployeeSearch').value;
+            const entryType = document.getElementById('manualEntryType').value;
+            const date = document.getElementById('manualDate').value;
+            const time = document.getElementById('manualTime').value;
+            
+            if (!employeeId || !entryType || !date || !time) {
+                showAlert('Please fill in all required fields (Employee, Type, Date, Time).', 'danger');
+                return;
+            }
+
+            const timestamp = new Date(`${date}T${time}:00`).toISOString();
+
+            const newEntry = {
+                id: getNextId(timeEntriesDatabase),
+                employeeId: employeeId,
+                type: entryType,
+                timestamp: timestamp,
+                manual: true
+            };
+            timeEntriesDatabase.push(newEntry);
+            saveData();
+            
+            const timeString = new Date(timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const dateString = new Date(timestamp).toLocaleDateString('en-AU');
+            showAlert(`Manual Time Entry Recorded: ${employeeName} - ${entryType} on ${dateString} at ${timeString}.`, 'warning');
+            closeModal('manualEntryModal');
+            event.target.reset();
+            document.getElementById('manualSelectedEmployeeId').value = '';
+            renderStatusTable();
+        }
+
+        // ====================================================================
+        // 7. REPORTING LOGIC
+        // ====================================================================
+
+        function calculateTime(entries) {
+            let totalWorkTime = 0; // in minutes
+            let totalBreakTime = 0; // in minutes
+            let totalWeekendTime = 0; // in minutes
+            let clockInTime = null;
+            let breakStartTime = null;
+
+            entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            entries.forEach(entry => {
+                const timestamp = new Date(entry.timestamp);
+                const dayOfWeek = timestamp.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 0 = Sunday, 6 = Saturday
+
+                if (entry.type === 'clock-in') {
+                    clockInTime = timestamp;
+                } else if (entry.type === 'break-start') {
+                    if (clockInTime) {
+                        const workDuration = (timestamp - clockInTime) / (1000 * 60);
+                        totalWorkTime += workDuration;
+                        if (isWeekend) totalWeekendTime += workDuration;
+                        clockInTime = null;
+                        breakStartTime = timestamp;
+                    }
+                } else if (entry.type === 'break-end') {
+                    if (breakStartTime) {
+                        const breakDuration = (timestamp - breakStartTime) / (1000 * 60);
+                        totalBreakTime += breakDuration;
+                        breakStartTime = null;
+                        clockInTime = timestamp;
+                    }
+                } else if (entry.type === 'clock-out') {
+                    if (clockInTime) {
+                        const workDuration = (timestamp - clockInTime) / (1000 * 60);
+                        totalWorkTime += workDuration;
+                        if (isWeekend) totalWeekendTime += workDuration;
+                        clockInTime = null;
+                    } else if (breakStartTime) {
+                        // If clock-out happens during a break, count the break time up to clock-out
+                        const breakDuration = (timestamp - breakStartTime) / (1000 * 60);
+                        totalBreakTime += breakDuration;
+                        breakStartTime = null;
+                    }
+                }
+            });
+
+            return {
+                workHours: (totalWorkTime / 60).toFixed(2),
+                breakHours: (totalBreakTime / 60).toFixed(2),
+                weekendHours: (totalWeekendTime / 60).toFixed(2)
+            };
+        }
+
+        function getReportData() {
+            const employeeIdFilter = document.getElementById('reportEmployee').value;
+            const shopIdFilter = document.getElementById('reportShop').value;
+            const startDateFilter = document.getElementById('reportStart').value;
+            const endDateFilter = document.getElementById('reportEnd').value;
+
+            let filteredEntries = timeEntriesDatabase.filter(entry => {
+                const entryDate = new Date(entry.timestamp);
+                const empId = entry.employeeId;
+                const empShopId = getEmployeeShopId(empId);
+
+                const isEmployeeMatch = employeeIdFilter === 'all' || empId === parseInt(employeeIdFilter);
+                const isShopMatch = shopIdFilter === 'all' || empShopId === parseInt(shopIdFilter);
+                
+                let isDateMatch = true;
+                if (startDateFilter) {
+                    const start = new Date(startDateFilter);
+                    start.setHours(0, 0, 0, 0);
+                    isDateMatch = isDateMatch && (entryDate >= start);
+                }
+                if (endDateFilter) {
+                    const end = new Date(endDateFilter);
+                    end.setHours(23, 59, 59, 999);
+                    isDateMatch = isDateMatch && (entryDate <= end);
+                }
+
+                return isEmployeeMatch && isShopMatch && isDateMatch;
+            });
+
+            const groupedEntries = filteredEntries.reduce((acc, entry) => {
+                const dateKey = new Date(entry.timestamp).toLocaleDateString('en-AU');
+                if (!acc[dateKey]) {
+                    acc[dateKey] = {};
+                }
+                if (!acc[dateKey][entry.employeeId]) {
+                    acc[dateKey][entry.employeeId] = [];
+                }
+                acc[dateKey][entry.employeeId].push(entry);
+                return acc;
+            }, {});
+
+            const reportRows = [];
+            let grandTotalWork = 0;
+            let grandTotalBreak = 0;
+            let grandTotalWeekend = 0;
+            const employeesInReport = new Set();
+
+            for (const dateKey in groupedEntries) {
+                for (const empId in groupedEntries[dateKey]) {
+                    const employeeEntriesForDay = groupedEntries[dateKey][empId];
+                    const { workHours, breakHours, weekendHours } = calculateTime(employeeEntriesForDay);
+                    
+                    const firstEntry = employeeEntriesForDay.find(e => e.type === 'clock-in');
+                    const lastEntry = employeeEntriesForDay.slice().reverse().find(e => e.type === 'clock-out');
+
+                    reportRows.push({
+                        date: dateKey,
+                        employeeName: getEmployeeName(parseInt(empId)),
+                        shopName: getShopName(getEmployeeShopId(parseInt(empId))),
+                        clockIn: firstEntry ? new Date(firstEntry.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
+                        clockOut: lastEntry ? new Date(lastEntry.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
+                        breakHours: breakHours,
+                        workHours: workHours,
+                        weekendHours: weekendHours
+                    });
+
+                    grandTotalWork += parseFloat(workHours);
+                    grandTotalBreak += parseFloat(breakHours);
+                    grandTotalWeekend += parseFloat(weekendHours);
+                    employeesInReport.add(parseInt(empId));
+                }
+            }
+
+            return {
+                rows: reportRows,
+                summary: {
+                    totalWork: grandTotalWork.toFixed(2),
+                    totalBreak: grandTotalBreak.toFixed(2),
+                    totalWeekend: grandTotalWeekend.toFixed(2),
+                    employeesCount: employeesInReport.size
+                }
+            };
+        }
+
+        function updateReportPreview() {
+            const { rows, summary } = getReportData();
+
+            // Render Summary Stats
+            const summaryEl = document.getElementById('reportSummaryStats');
+            summaryEl.innerHTML = `
+                <div class="stat-box">
+                    <div class="stat-number">${summary.totalWork}</div>
+                    <div class="stat-label">Total Work Hours</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${summary.totalBreak}</div>
+                    <div class="stat-label">Total Break Hours</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${summary.totalWeekend}</div>
+                    <div class="stat-label">Total Weekend Hours</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${summary.employeesCount}</div>
+                    <div class="stat-label">Employees Reported</div>
+                </div>
+            `;
+
+            // Render Report Table
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            rows.forEach(row => {
+                const tr = tbody.insertRow();
+                tr.innerHTML = `
+                    <td>${row.date}</td>
+                    <td>${row.employeeName}</td>
+                    <td>${row.shopName}</td>
+                    <td>${row.clockIn}</td>
+                    <td>${row.clockOut}</td>
+                    <td>${row.breakHours}</td>
+                    <td>${row.workHours}</td>
+                    <td>${row.weekendHours}</td>
+                `;
+            });
+
+            showAlert('Report generated successfully!', 'success');
+        }
+
+        // ====================================================================
+        // 8. EXPORT FUNCTIONALITY
+        // ====================================================================
+
+        function exportReportPDF() {
+            const element = document.getElementById('reportTable').closest('.report-card');
+            const opt = {
+                margin: 10,
+                filename: `timetrack_report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+            showAlert('PDF exported successfully!', 'success');
+        }
+
+        function exportReportExcel() {
+            const table = document.getElementById('reportTable');
+            let csv = [];
+            
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(`"${th.textContent.trim()}"`);
+            });
+            csv.push(headers.join(','));
+            
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push(`"${td.textContent.trim()}"`);
+                });
+                csv.push(row.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `timetrack_report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.click();
+            
+            showAlert('Excel file exported successfully!', 'success');
+        }
+
+        // ====================================================================
+        // 9. UI RENDERING FUNCTIONS
+        // ====================================================================
+
+        function renderEmployeeTable() {
+            const tbody = document.getElementById('allEmployeesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const employeesToDisplay = getFilteredEmployees();
+            const canManage = loggedInUser && (loggedInUser.role === 'Owner' || (loggedInUser.role === 'Manager' && loggedInUser.fullAccess));
+
+            employeesToDisplay.forEach(emp => {
+                const shopName = getShopName(emp.shopId);
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${emp.id}</td>
+                    <td>${emp.name}</td>
+                    <td>${emp.role} ${emp.fullAccess ? '<span class="full-access-badge">FULL ACCESS</span>' : ''}</td>
+                    <td>${shopName}</td>
+                    <td>${emp.username || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-small btn-warning" onclick="openEditEmployeeModal(${emp.id})" ${!canManage && emp.role !== 'Staff' ? 'disabled' : ''}>
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-small btn-danger" onclick="deleteEmployee(${emp.id})" ${emp.role === 'Owner' && emp.id === 9999 ? 'disabled' : ''} ${!canManage ? 'disabled' : ''}>
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        function renderManagerList() {
+            const listBody = document.getElementById('managerListBody');
+            if (!listBody) return;
+            listBody.innerHTML = '';
+
+            const managers = employeesDatabase.filter(emp => emp.role === 'Manager');
+
+            managers.forEach(manager => {
+                const shopName = getShopName(manager.shopId);
+                const item = document.createElement('div');
+                item.className = 'manager-item';
+                item.innerHTML = `
+                    <div class="manager-info">
+                        <strong>${manager.name}</strong>
+                        <span>Shop: ${shopName} | Username: ${manager.username}</span>
+                    </div>
+                    <div class="manager-actions">
+                        ${manager.fullAccess ? '<span class="full-access-badge">FULL ACCESS</span>' : '<span class="manager-badge">MANAGER</span>'}
+                        <button class="btn btn-small btn-info" onclick="toggleManagerFullAccess(${manager.id})">
+                            <i class="fas fa-toggle-${manager.fullAccess ? 'on' : 'off'}"></i> ${manager.fullAccess ? 'Revoke' : 'Grant'} Full Access
+                        </button>
+                    </div>
+                `;
+                listBody.appendChild(item);
+            });
+        }
+
+        function toggleManagerFullAccess(managerId) {
+            const managerIndex = employeesDatabase.findIndex(emp => emp.id === managerId);
+            if (managerIndex !== -1) {
+                const currentStatus = employeesDatabase[managerIndex].fullAccess;
+                employeesDatabase[managerIndex].fullAccess = !currentStatus;
+                saveData();
+                showAlert(`Full access for ${employeesDatabase[managerIndex].name} has been ${!currentStatus ? 'GRANTED' : 'REVOKED'}.`, 'info');
+                renderManagerList();
+                // If the logged-in user is the one being changed, update their session
+                if (loggedInUser && loggedInUser.id === managerId) {
+                    loggedInUser.fullAccess = !currentStatus;
+                    saveLoggedInUser(loggedInUser);
+                    updateRoleBasedUI();
+                }
+            }
+        }
+
+        function renderShopsTable() {
+            const tbody = document.getElementById('shopsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            shopsDatabase.forEach(shop => {
+                const managerName = shop.managerId ? getEmployeeName(shop.managerId) : 'Unassigned';
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${shop.id}</td>
+                    <td>${shop.name}</td>
+                    <td>${shop.location}</td>
+                    <td>${managerName}</td>
+                    <td>
+                        <button class="btn btn-small btn-warning" onclick="openEditShopModal(${shop.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-small btn-danger" onclick="deleteShop(${shop.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        function renderStatusTable() {
+            const tbody = document.getElementById('employeeTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const latestEntries = {};
+            timeEntriesDatabase.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(entry => {
+                if (!latestEntries[entry.employeeId]) {
+                    latestEntries[entry.employeeId] = entry;
+                }
+            });
+
+            const employeesToDisplay = getFilteredEmployees();
+
+            employeesToDisplay.forEach(emp => {
+                const entry = latestEntries[emp.id];
+                let status = 'Clocked Out';
+                let statusClass = 'status-absent';
+                let time = 'N/A';
+
+                if (entry) {
+                    time = new Date(entry.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    if (entry.type === 'clock-in' || entry.type === 'break-end') {
+                        status = 'Clocked In';
+                        statusClass = 'status-present';
+                    } else if (entry.type === 'break-start') {
+                        status = 'On Break';
+                        statusClass = 'status-break';
+                    }
+                }
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${emp.name}</td>
+                    <td>${getShopName(emp.shopId)}</td>
+                    <td><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>${time}</td>
+                `;
+            });
+        }
+
+        // ====================================================================
+        // 10. UTILITY FUNCTIONS (Dropdowns, Modals, Alerts)
+        // ====================================================================
+
+        function populateDropdowns() {
+            // Populate Shop Dropdowns
+            const shopSelects = document.querySelectorAll('#employeeShop, #editEmployeeShop, #shopManager, #editShopManager, #reportShop');
+            shopSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '';
+
+                if (select.id === 'reportShop') {
+                    select.innerHTML += '<option value="all">All Shops</option>';
+                }
+                if (select.id === 'shopManager' || select.id === 'editShopManager') {
+                    select.innerHTML += '<option value="">Unassigned</option>';
+                }
+
+                shopsDatabase.forEach(shop => {
+                    select.innerHTML += `<option value="${shop.id}">${shop.name}</option>`;
+                });
+                select.value = currentValue;
+            });
+
+            // Populate Employee Dropdowns (for Time Entry)
+            const employeesToDisplay = getFilteredEmployees();
+            const dropdownLists = document.querySelectorAll('#employeeDropdownList, #manualEmployeeDropdownList');
+            dropdownLists.forEach(dropdownList => {
+                dropdownList.innerHTML = '';
+                employeesToDisplay.forEach(emp => {
+                    const item = document.createElement('div');
+                    item.className = 'employee-dropdown-item';
+                    item.innerHTML = `<div><strong>${emp.name}</strong></div><div class="employee-id">${emp.id} - ${getShopName(emp.shopId)}</div>`;
+                    item.onclick = () => {
+                        if (dropdownList.id === 'employeeDropdownList') {
+                            selectEmployee(emp.id, emp.name);
+                        } else {
+                            selectManualEmployee(emp.id, emp.name);
+                        }
+                    };
+                    dropdownList.appendChild(item);
+                });
+            });
+
+            // Populate Report Employee Dropdown
+            const reportEmployeeSelect = document.getElementById('reportEmployee');
+            if (reportEmployeeSelect) {
+                reportEmployeeSelect.innerHTML = '<option value="all">All Employees</option>';
+                employeesDatabase.forEach(emp => {
+                    reportEmployeeSelect.innerHTML += `<option value="${emp.id}">${emp.name} (${emp.id})</option>`;
+                });
+            }
+        }
+
+        function toggleManagerFields(role) {
+            const managerCredentials = document.getElementById('managerCredentials');
+            if (managerCredentials) {
+                managerCredentials.style.display = role === 'Manager' ? 'block' : 'none';
+            }
+        }
+
+        function toggleFullAccess(role) {
+            const fullAccessGroup = document.getElementById('fullAccessGroup');
+            if (fullAccessGroup) {
+                if (role === 'Owner' || role === 'Manager') {
+                    fullAccessGroup.style.display = 'block';
+                } else {
+                    fullAccessGroup.style.display = 'none';
+                    document.getElementById('editEmployeeFullAccess').checked = false;
+                }
+            }
+        }
+
+        function showEmployeeDropdown() {
+            document.getElementById('employeeDropdownList').classList.add('active');
+        }
+
+        function filterEmployeeDropdown() {
+            const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#employeeDropdownList .employee-dropdown-item');
+            items.forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function selectEmployee(empId, empName) {
+            document.getElementById('employeeSearch').value = `${empId} - ${empName}`;
+            document.getElementById('selectedEmployeeId').value = empId;
+            document.getElementById('employeeDropdownList').classList.remove('active');
+        }
+
+        function showManualEmployeeDropdown() {
+            document.getElementById('manualEmployeeDropdownList').classList.add('active');
+        }
+
+        function filterManualEmployeeDropdown() {
+            const searchTerm = document.getElementById('manualEmployeeSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#manualEmployeeDropdownList .employee-dropdown-item');
+            items.forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function selectManualEmployee(empId, empName) {
+            document.getElementById('manualEmployeeSearch').value = `${empId} - ${empName}`;
+            document.getElementById('manualSelectedEmployeeId').value = empId;
+            document.getElementById('manualEmployeeDropdownList').classList.remove('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const closeDropdowns = (searchInputId, dropdownListId) => {
+                const searchInput = document.getElementById(searchInputId);
+                const dropdownList = document.getElementById(dropdownListId);
+                if (searchInput && dropdownList && !searchInput.contains(event.target) && !dropdownList.contains(event.target)) {
+                    dropdownList.classList.remove('active');
+                }
+            };
+            closeDropdowns('employeeSearch', 'employeeDropdownList');
+            closeDropdowns('manualEmployeeSearch', 'manualEmployeeDropdownList');
+        });
+
+        function switchTab(event, tabName) {
+            if (event) event.preventDefault();
+            
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs li').forEach(item => item.classList.remove('active'));
+            
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+            
+            const navItem = document.querySelector(`#navTabs li[onclick*="'${tabName}'"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+        }
+
+        function openModal(modalId) {
+            populateDropdowns();
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i><span>${message}</span>`;
+            
+            const main = document.querySelector('main .container');
+            if (main) {
+                main.insertBefore(alertDiv, main.firstChild);
+                setTimeout(() => {
+                    alertDiv.style.opacity = 0;
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        function filterEmployeeTable() {
+            const searchTerm = document.getElementById('searchEmployee').value.toLowerCase();
+            document.querySelectorAll('#employeeTableBody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function filterEmployeeList() {
+            const searchTerm = document.getElementById('searchEmployeeList').value.toLowerCase();
+            document.querySelectorAll('#allEmployeesTableBody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function updatePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (newPass !== confirm) {
+                showAlert('New passwords do not match', 'danger');
+                return;
+            }
+            
+            if (loggedInUser.password !== current) {
+                showAlert('Current password is incorrect', 'danger');
+                return;
+            }
+            
+            const userIndex = employeesDatabase.findIndex(emp => emp.id === loggedInUser.id);
+            if (userIndex !== -1) {
+                employeesDatabase[userIndex].password = newPass;
+                loggedInUser.password = newPass;
+                saveData();
+                saveLoggedInUser(loggedInUser);
+                showAlert('Password updated successfully!', 'success');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            } else {
+                showAlert('Error updating password. User not found.', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>
