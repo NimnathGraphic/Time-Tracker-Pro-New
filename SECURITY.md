@@ -13,7 +13,7 @@ echo '# Security Policy
 
 **DO NOT** report security issues in public GitHub issues.
 
-Email: security@example.com
+Email: nimnathgraphics@gmail.com
 
 We respond within 48 hours.' > SECURITY.md
 
