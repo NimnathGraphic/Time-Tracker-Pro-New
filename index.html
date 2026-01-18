@@ -1,0 +1,3208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeTrack Pro AU - Complete Staff Time Management System</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0052cc;
+            --primary-dark: #0747a6;
+            --secondary: #ffab00;
+            --success: #36b37e;
+            --danger: #ff5630;
+            --warning: #f59e0b;
+            --info: #00b8d9;
+            --background: #fbfcff;
+            --surface: #f7faff;
+            --text: #060a0e;
+            --gray: #01020ca7;
+            --border: #124485;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Login Page */
+        .login-wrapper {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--text);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success {
+            background: #e3fcef;
+            color: #006644;
+            border: 1px solid #a8f2d0;
+        }
+
+        .alert-error {
+            background: #ffebe6;
+            color: #bf2600;
+            border: 1px solid #ffbdad;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        /* Main App Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray);
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #f0f2f5;
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--background);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Dashboard Specific */
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .clock-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 1rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .date-display {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Manual Entry Panel - Multi Entry */
+        .manual-entry-panel {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .manual-entry-panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .entry-rows {
+            margin-bottom: 1rem;
+        }
+
+        .entry-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Staff Search */
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-present {
+            background: #e3fcef;
+            color: #006644;
+        }
+
+        .badge-break {
+            background: #fffae6;
+            color: #ff8b00;
+        }
+
+        .badge-absent {
+            background: #ffebe6;
+            color: #de350b;
+        }
+
+        .badge-weekend {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f9f9f9;
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        /* Shop Cards Grid */
+        .shops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .shop-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .shop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .shop-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            background: #f0f2f5;
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .settings-section {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* Reports */
+        .report-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .report-period-btn {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .report-period-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .report-period-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Help Page */
+        .help-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .help-section {
+            margin-bottom: 2rem;
+        }
+
+        .help-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .help-section ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .developer-note {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Verification Modal */
+        .verification-input {
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 5px;
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: var(--success);
+        }
+
+        .text-danger {
+            color: var(--danger);
+        }
+
+        .text-warning {
+            color: var(--warning);
+        }
+
+        .text-info {
+            color: var(--info);
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        /* Success Message Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            opacity: 0.5;
+            pointer-events: none;
+            text-align: right;
+            z-index: 1;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                max-height: 60vh;
+            }
+
+            .nav-links {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+                padding-bottom: 10px;
+            }
+
+            .nav-item {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .grid-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .entry-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1.5rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .clock-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-clock"></i> TimeTrack Pro V2.00
+            </div>
+            <h3 style="margin-bottom: 1.5rem; color: var(--text);">Staff Time Management System</h3>
+            <div id="loginAlert" class="alert alert-error"></div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+            </form>
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--gray);">
+                Australia Edition V2.00 | Professional Time Tracking System
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appScreen" class="app-container hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-user-clock"></i> 
+                <span id="companyName">TimeTrack Pro</span>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item active" onclick="switchTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </li>
+                <li class="nav-item" onclick="switchTab('staff')">
+                    <i class="fas fa-users"></i> Staff Management
+                </li>
+                <li class="nav-item" id="navShops" onclick="switchTab('shops')">
+                    <i class="fas fa-store"></i> Shop Management
+                </li>
+                <li class="nav-item" onclick="switchTab('reports')">
+                    <i class="fas fa-chart-line"></i> Reports & Analytics
+                </li>
+                <li class="nav-item" onclick="switchTab('settings')">
+                    <i class="fas fa-cog"></i> Settings
+                </li>
+                <li class="nav-item" onclick="switchTab('help')">
+                    <i class="fas fa-question-circle"></i> Help & Support
+                </li>
+            </ul>
+            <div class="user-profile">
+                <i class="fas fa-user-circle" style="font-size: 2rem; color: var(--primary);"></i>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600;" id="userDisplayName">User</div>
+                    <div style="font-size: 0.8rem; color: var(--gray);" id="userDisplayRole">Role</div>
+                </div>
+                <button onclick="logout()" class="btn" style="background: none; color: var(--danger); padding: 0.5rem;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Global Alert Container -->
+            <div id="globalAlert" class="alert"></div>
+
+            <!-- Dashboard Tab -->
+            <div id="view-dashboard" class="tab-content">
+                <div class="header-bar">
+                    <h2 class="page-title">Staff Attendance Dashboard</h2>
+                    <div id="shopNameDisplay" style="color: var(--primary); font-weight: 600;"></div>
+                </div>
+
+                <div class="grid-dashboard">
+                    <!-- Time Entry Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Time Entry System</h3>
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                                <span>Manual Entry Mode</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="manualModeToggle" onchange="toggleManualMode()">
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+
+                        <!-- Live Clock Display -->
+                        <div id="liveClockDisplay">
+                            <div class="clock-display" id="liveClock">00:00:00</div>
+                            <div class="date-display" id="currentDate">Loading date...</div>
+                        </div>
+
+                        <!-- Manual Entry Panel (Multi-Entry) -->
+                        <div id="manualEntryPanel" class="manual-entry-panel">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="manualDate" class="form-control" value="">
+                            </div>
+                            
+                            <div class="entry-rows" id="manualEntryRows">
+                                <!-- Entry rows will be added dynamically -->
+                                <div class="entry-row">
+                                    <select class="form-control entry-type">
+                                        <option value="clock-in">🟢 Clock In</option>
+                                        <option value="break-start">☕ Start Break</option>
+                                        <option value="break-end">🔙 End Break</option>
+                                        <option value="clock-out">🔴 Clock Out</option>
+                                    </select>
+                                    <input type="time" class="form-control entry-time" value="09:00">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeEntryRow(this)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-row" style="justify-content: space-between; margin-bottom: 1rem;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="addEntryRow()">
+                                    <i class="fas fa-plus"></i> Add Another Entry
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm" onclick="resetManualEntries()">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <form onsubmit="submitTimeEntry(event)">
+                            <div class="form-group">
+                                <label>Staff Member Search</label>
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="staffSearch" class="form-control" 
+                                           placeholder="Search by name or ID (e.g., 1001)" 
+                                           onkeyup="searchStaff()">
+                                    <div id="staffSuggestions" class="suggestions-box"></div>
+                                </div>
+                                <input type="hidden" id="selectedStaffId">
+                            </div>
+
+                            <div id="liveEntryFields">
+                                <div class="form-group">
+                                    <label>Action Type</label>
+                                    <select id="entryType" class="form-control" required>
+                                        <option value="">Select action...</option>
+                                        <option value="clock-in">🟢 Clock In</option>
+                                        <option value="break-start">☕ Start Break</option>
+                                        <option value="break-end">🔙 End Break</option>
+                                        <option value="clock-out">🔴 Clock Out</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-check"></i> Submit Time Entry
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Current Status Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-list-ul"></i> Today's Staff Status</h3>
+                            <div class="search-box" style="max-width: 200px;">
+                                <input type="text" id="statusSearch" class="form-control" 
+                                       placeholder="Search staff..." onkeyup="filterStatusTable()">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="statusTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Shop</th>
+                                        <th>Status</th>
+                                        <th>Last Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statusTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Management Tab -->
+            <div id="view-staff" class="tab-content hidden">
+                <div class="header-bar">
+                    <h2 class="page-title">Staff Management System</h2>
+                    <button class="btn btn-primary" onclick="openModal('addStaffModal')">
+                        <i class="fas fa-user-plus"></i> Add New Staff
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="table-responsive">
+                        <table id="staffTable">
+                            <thead>
+                                <tr>
+                                    <th>Staff ID</th>
+                                    <th>Full Name</th>
+                                    <th>Role</th>
+                                    <th>Shop</th>
+                                    <th>Status</th>
+                                    <th>Access Level</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shops Management Tab -->
+            <div id="view-shops" class="tab-content hidden">
+                <div class="header-bar">
+                    <h2 class="page-title">Shop Management System</h2>
+                    <button class="btn btn-primary" onclick="openModal('addShopModal')">
+                        <i class="fas fa-plus"></i> Add New Shop
+                    </button>
+                </div>
+                <div class="card">
+                    <div id="shopsGrid" class="shops-grid">
+                        <!-- Shop cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="view-reports" class="tab-content hidden">
+                <div class="header-bar">
+                    <h2 class="page-title">Reports & Analytics System</h2>
+                </div>
+                <div class="card">
+                    <div class="report-toolbar">
+                        <button class="report-period-btn active" onclick="setReportPeriod('daily')">Daily Report</button>
+                        <button class="report-period-btn" onclick="setReportPeriod('weekly')">Weekly Report</button>
+                        <button class="report-period-btn" onclick="setReportPeriod('biweekly')">2-Weekly Report</button>
+                        <button class="report-period-btn" onclick="setReportPeriod('monthly')">Monthly Report</button>
+                    </div>
+
+                    <div class="grid-dashboard" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="reportStart" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="reportEnd" class="form-control">
+                        </div>
+                        <div class="form-group" id="reportShopFilterDiv">
+                            <label>Filter by Shop</label>
+                            <select id="reportShopFilter" class="form-control">
+                                <option value="all">All Shops</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="generateDetailedReport()">
+                                <i class="fas fa-search"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Summary Stats -->
+                    <div id="reportSummary" style="display: none; margin-bottom: 1.5rem;">
+                        <div class="grid-dashboard" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                            <div class="card text-center">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="totalWorkHours">0.00</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">Total Work Hours</div>
+                            </div>
+                            <div class="card text-center">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);" id="totalBreakHours">0.00</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">Total Break Hours</div>
+                            </div>
+                            <div class="card text-center">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--info);" id="totalWeekendHours">0.00</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">Weekend Work Hours</div>
+                            </div>
+                            <div class="card text-center">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="totalStaffCount">0</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">Staff Count</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="reportTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Staff Name</th>
+                                    <th>Shop</th>
+                                    <th>Clock In</th>
+                                    <th>Clock Out</th>
+                                    <th>Break (mins)</th>
+                                    <th>Work Hours</th>
+                                    <th>Weekend Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex-row" style="justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" onclick="exportReportPDF()">
+                            <i class="fas fa-file-pdf"></i> Export as PDF
+                        </button>
+                        <button class="btn btn-success" onclick="exportReportExcel()">
+                            <i class="fas fa-file-excel"></i> Export as Excel
+                        </button>
+                        <button class="btn btn-info" onclick="printReport()">
+                            <i class="fas fa-print"></i> Print Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="view-settings" class="tab-content hidden">
+                <div class="header-bar">
+                    <h2 class="page-title">System Settings & Configuration</h2>
+                </div>
+                
+                <div class="settings-grid">
+                    <!-- Company Settings -->
+                    <div class="settings-section">
+                        <h3 style="margin-bottom: 1rem;">Company Settings</h3>
+                        <form onsubmit="updateCompanySettings(event)">
+                            <div class="form-group">
+                                <label>Company/Business Name</label>
+                                <input type="text" id="companyNameInput" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Company Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Password Change -->
+                    <div class="settings-section">
+                        <h3 style="margin-bottom: 1rem;">Change Your Password</h3>
+                        <form onsubmit="changePassword(event)">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="newPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="confirmPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Update Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Manager Access Control (Owner only) -->
+                    <div class="settings-section" id="accessControlSection" style="display: none;">
+                        <h3 style="margin-bottom: 1rem;">Manager Access Control</h3>
+                        <div id="managerList"></div>
+                    </div>
+
+                    <!-- Data Management (Owner only) -->
+                    <div class="settings-section" id="dataManagementSection" style="display: none;">
+                        <h3 style="margin-bottom: 1rem; color: var(--danger);">⚠️ Data Management</h3>
+                        <p style="margin-bottom: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            Warning: These actions are permanent and cannot be undone. Use with extreme caution.
+                        </p>
+                        
+                        <div class="form-group">
+                            <label style="color: var(--danger); font-weight: 600;">
+                                <input type="checkbox" id="deleteStaff" style="margin-right: 10px;">
+                                Delete All Staff Data
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="color: var(--warning); font-weight: 600;">
+                                <input type="checkbox" id="deleteManagers" style="margin-right: 10px;">
+                                Delete All Managers
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="color: var(--primary); font-weight: 600;">
+                                <input type="checkbox" id="deleteFullAccessManagers" style="margin-right: 10px;">
+                                Delete All Full Access Managers
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-size: 0.9rem; color: var(--gray);">
+                                <input type="checkbox" id="confirmDelete" style="margin-right: 10px;">
+                                I understand this action cannot be undone
+                            </label>
+                        </div>
+                        
+                        <button class="btn btn-danger btn-block" onclick="showVerificationModal()">
+                            <i class="fas fa-trash-alt"></i> Delete Selected Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+           <!-- Help & Support Tab -->
+<div id="view-help" class="tab-content hidden">
+    <div class="header-bar">
+        <h2 class="page-title">Help & Support Center</h2>
+    </div>
+    
+    <div class="help-content">
+        <!-- Introduction -->
+        <div class="help-section">
+            <h3>Welcome to TimeTrack Pro V2.00</h3>
+            <p>TimeTrack Pro is a professional staff time management system designed specifically for Australian businesses with multiple shop locations. This system helps you efficiently track staff attendance, manage shops, and generate detailed reports.</p>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="help-section">
+            <h3>Getting Started</h3>
+            <h4>System Setup Process:</h4>
+            <ul>
+                <li><strong>Step 1:</strong> Login as System Owner</li>
+                <li><strong>Step 2:</strong> Add your shop locations in Shop Management</li>
+                <li><strong>Step 3:</strong> Create manager accounts for each shop</li>
+                <li><strong>Step 4:</strong> Add staff members to each shop</li>
+                <li><strong>Step 5:</strong> Start recording staff time entries</li>
+            </ul>
+            
+            <h4>User Accounts:</h4>
+            <ul>
+                <li><strong>System Owner:</strong> Has full access to all features</li>
+                <li><strong>Managers:</strong> Can manage staff in their assigned shop</li>
+                <li><strong>Full Access Managers:</strong> Have extended permissions (set by Owner)</li>
+                <li><strong>Staff Members:</strong> No login required - managed by managers</li>
+            </ul>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="help-section">
+            <h3>System Features</h3>
+            <h4>1. Dashboard & Time Entry:</h4>
+            <ul>
+                <li><strong>Live Time Entry:</strong> Record current time for staff</li>
+                <li><strong>Manual Entry Mode:</strong> Enter past/future time records</li>
+                <li><strong>Multi-Entry:</strong> Add multiple time entries at once</li>
+                <li><strong>Staff Search:</strong> Find staff by name or ID (4-digit numbers)</li>
+            </ul>
+            
+            <h4>2. Staff Management:</h4>
+            <ul>
+                <li>Staff IDs are 4-digit numbers starting from 1001</li>
+                <li>Each staff member is assigned to a specific shop</li>
+                <li>Real-time status tracking (Present/Break/Absent)</li>
+                <li>Managers can add staff to their assigned shop</li>
+            </ul>
+            
+            <h4>3. Shop Management:</h4>
+            <ul>
+                <li>Add unlimited shop locations</li>
+                <li>Assign managers to each shop</li>
+                <li>View shop-specific staff details</li>
+                <li>Edit or delete shops as needed</li>
+            </ul>
+            
+            <h4>4. Reports & Analytics:</h4>
+            <ul>
+                <li><strong>Daily Reports:</strong> Today's attendance</li>
+                <li><strong>Weekly Reports:</strong> 7-day summary</li>
+                <li><strong>Bi-Weekly Reports:</strong> 14-day overview</li>
+                <li><strong>Monthly Reports:</strong> Full month analysis</li>
+                <li><strong>Detailed Calculations:</strong> Work hours, break duration, weekend hours</li>
+                <li><strong>Export Options:</strong> PDF and Excel formats</li>
+            </ul>
+            
+            <h4>5. Advanced Features:</h4>
+            <ul>
+                <li><strong>Cross-Device Sync:</strong> Real-time data synchronization</li>
+                <li><strong>Mobile Friendly:</strong> Works on all devices</li>
+                <li><strong>Australian Time Format:</strong> Local time display</li>
+                <li><strong>Data Security:</strong> Secure data management</li>
+            </ul>
+        </div>
+
+        <!-- How to Use -->
+        <div class="help-section">
+            <h3>How to Use the System</h3>
+            
+            <h4>For System Owners:</h4>
+            <ol>
+                <li>Set your company name in Settings</li>
+                <li>Add all your shop locations</li>
+                <li>Create manager accounts for each shop</li>
+                <li>Grant full access to trusted managers if needed</li>
+                <li>Monitor all shops through the reports section</li>
+            </ol>
+            
+            <h4>For Shop Managers:</h4>
+            <ol>
+                <li>Use the Dashboard to record staff time entries</li>
+                <li>Add new staff members to your shop</li>
+                <li>Monitor daily attendance in your shop</li>
+                <li>Generate reports for your shop's performance</li>
+                <li>Note: Regular managers can only manage their assigned shop</li>
+            </ol>
+            
+            <h4>Time Entry Process:</h4>
+            <ol>
+                <li><strong>Select Staff:</strong> Search by name or ID</li>
+                <li><strong>Choose Action:</strong> Clock In, Break Start, Break End, Clock Out</li>
+                <li><strong>Manual Mode:</strong> Toggle for past/future entries</li>
+                <li><strong>Multiple Entries:</strong> Use "Add Another Entry" for multiple records</li>
+                <li><strong>Submit:</strong> All entries are saved instantly</li>
+            </ol>
+            
+            <h4>Report Generation:</h4>
+            <ol>
+                <li>Select report period (Daily/Weekly/Bi-weekly/Monthly)</li>
+                <li>Choose date range</li>
+                <li>Filter by shop if needed</li>
+                <li>Click "Generate Report"</li>
+                <li>Export as PDF or Excel</li>
+            </ol>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="help-section">
+            <h3>Troubleshooting Guide</h3>
+            
+            <h4>Common Issues and Solutions:</h4>
+            <ul>
+                <li><strong>Login Issues:</strong> Check username and password. Contact owner if forgotten.</li>
+                <li><strong>Data Not Syncing:</strong> Check internet connection and refresh page.</li>
+                <li><strong>Staff Not Showing:</strong> Verify staff is assigned to correct shop.</li>
+                <li><strong>Report Errors:</strong> Ensure correct date range is selected.</li>
+                <li><strong>Browser Issues:</strong> Use Chrome, Firefox, or Safari for best results.</li>
+            </ul>
+            
+            <h4>Cross-Device Operation:</h4>
+            <ul>
+                <li>All data syncs automatically between devices</li>
+                <li>Works on desktop computers, tablets, and smartphones</li>
+                <li>No app installation required - works in any modern browser</li>
+                <li>Real-time updates - changes appear instantly on all devices</li>
+            </ul>
+        </div>
+
+        <!-- System Requirements -->
+        <div class="help-section">
+            <h3>System Requirements</h3>
+            <ul>
+                <li>Modern web browser (Chrome 80+, Firefox 75+, Safari 13+)</li>
+                <li>Internet connection for data synchronization</li>
+                <li>JavaScript enabled in browser</li>
+                <li>Recommended: 1280×720 screen resolution or higher</li>
+                <li>Mobile: iOS 12+ or Android 8+ for mobile devices</li>
+            </ul>
+        </div>
+
+        <!-- Developer Note -->
+        <div class="developer-note">
+            <h3>About TimeTrack Pro V2.00</h3>
+            <p><strong>Version:</strong> 2.00 (Complete Professional Edition)</p>
+            <p><strong>Developer:</strong> Nimnath Graphic</p>
+            <p><strong>Email:</strong> nimnathgraphics@gmail.com</p>
+            <p><strong>Special Thanks:</strong> To all Australian business owners for their valuable feedback</p>
+            <p><strong>System Description:</strong> This professional staff time management system is designed specifically for Australian businesses with multiple shop locations. It provides comprehensive features for tracking staff attendance, managing shops, and generating detailed reports with cross-device synchronization.</p>
+            <p><strong>Key Features:</strong> Real-time tracking, multi-entry system, detailed reporting, shop management, role-based permissions, mobile compatibility, and secure data management.</p>
+        </div>
+
+        <!-- Download Documentation -->
+        <div class="help-section text-center">
+            <button class="btn btn-primary" onclick="downloadUserManual()">
+                <i class="fas fa-download"></i> Download Complete User Manual (PDF)
+            </button>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray);">
+                Download the complete user manual for offline reference and training
+            </p>
+        </div>
+    </div>
+</div>
+
+    <!-- ============================================= -->
+    <!-- MODALS SECTION -->
+    <!-- ============================================= -->
+
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('addStaffModal')">&times;</button>
+            <h3 style="margin-bottom: 1.5rem;">Add New Staff Member</h3>
+            <form onsubmit="addStaff(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="newStaffName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newStaffRole" class="form-control" onchange="toggleManagerFields()" required>
+                        <option value="Staff">Staff Member</option>
+                        <option value="Manager" id="managerOption">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group" id="shopAssignmentDiv">
+                    <label>Shop Assignment</label>
+                    <select id="newStaffShop" class="form-control"></select>
+                </div>
+                <div id="managerFields" class="hidden">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="newStaffUsername" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="text" id="newStaffPassword" class="form-control">
+                    </div>
+                    <div class="form-group" id="fullAccessDiv" style="display: none;">
+                        <label>
+                            <input type="checkbox" id="newStaffFullAccess">
+                            Grant Full System Access (Owner Level)
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Add Staff Member
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Shop Modal -->
+    <div id="addShopModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('addShopModal')">&times;</button>
+            <h3 style="margin-bottom: 1.5rem;" id="shopModalTitle">Add New Shop</h3>
+            <form onsubmit="saveShop(event)">
+                <input type="hidden" id="shopId">
+                <div class="form-group">
+                    <label>Shop Name</label>
+                    <input type="text" id="shopName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Location/Address</label>
+                    <textarea id="shopLocation" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Assign Manager (Optional)</label>
+                    <select id="shopManager" class="form-control">
+                        <option value="0">No Manager Assigned</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-save"></i> Save Shop Details
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shop Details Modal -->
+    <div id="shopDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-btn" onclick="closeModal('shopDetailsModal')">&times;</button>
+            <h3 id="shopDetailsTitle" style="margin-bottom: 1.5rem;"></h3>
+            <div class="form-group">
+                <label>Location</label>
+                <p id="shopDetailsLocation" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; margin-top: 0.5rem;"></p>
+            </div>
+            <div class="form-group">
+                <label>Manager</label>
+                <p id="shopDetailsManager" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; margin-top: 0.5rem;"></p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 1rem;">Current Staff Members</h4>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Staff ID</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopDetailsStaff"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="shop-actions" style="margin-top: 1.5rem;">
+                <button class="btn btn-primary" id="editShopBtn" style="flex: 1;">
+                    <i class="fas fa-edit"></i> Edit Shop
+                </button>
+                <button class="btn btn-danger" id="deleteShopBtn" style="flex: 1;">
+                    <i class="fas fa-trash"></i> Delete Shop
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal for Data Deletion -->
+    <div id="verificationModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-btn" onclick="closeModal('verificationModal')">&times;</button>
+            <h3 style="margin-bottom: 1rem; color: var(--danger);">⚠️ Data Deletion Verification</h3>
+            <p style="margin-bottom: 1rem; color: var(--gray);">
+                This action will permanently delete all selected data. This cannot be undone.
+            </p>
+            <p style="margin-bottom: 1rem; font-weight: 600; color: var(--danger);">
+                To confirm deletion, enter the verification code below:
+            </p>
+            <div class="text-center" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                <div style="font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--danger);" id="verificationCode">----</div>
+            </div>
+            <div class="form-group">
+                <label>Enter Verification Code:</label>
+                <input type="text" id="verificationInput" class="form-control verification-input" 
+                       maxlength="4" placeholder="Enter 4-digit code">
+            </div>
+            <div class="flex-row" style="justify-content: space-between; margin-top: 1.5rem;">
+                <button class="btn" onclick="closeModal('verificationModal')" style="background: var(--border);">
+                    Cancel
+                </button>
+                <button class="btn btn-danger" onclick="confirmDataDeletion()">
+                    <i class="fas fa-trash-alt"></i> Confirm & Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Watermark -->
+    <div class="watermark">
+        TimeTrack Pro AU V2.00<br>
+        Professional Staff Management<br>
+        © 2024 Australian Edition
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn_mM2kWXLFsSn8nia2LIvOduNdklnyKg",
+            authDomain: "timetrack-pro-79f80.firebaseapp.com",
+            projectId: "timetrack-pro-79f80",
+            storageBucket: "timetrack-pro-79f80.firebasestorage.app",
+            messagingSenderId: "350900432950",
+            appId: "1:350900432950:web:c8a6a1ecd84d26b1fa2897",
+            measurementId: "G-PYF12DR7V0"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ==========================================
+        // 2. GLOBAL STATE & CONSTANTS
+        // ==========================================
+        let currentUser = null;
+        let shops = [];
+        let staff = []; // Changed from employees to staff
+        let timeEntries = [];
+        
+        const OWNER_ID = 9999;
+        const IMALI_ID = 8888;
+        const STARTING_STAFF_ID = 1001; // 4-digit IDs starting from 1001
+        
+        // Default shops for Australia business
+        const DEFAULT_SHOPS = [
+            { id: 1, name: "My Kind Of Food", location: "Main Street", managerId: 0 },
+            { id: 2, name: "My Kind Of Food Joondalup", location: "Joondalup Centre", managerId: 0 },
+            { id: 3, name: "Einsteins Coffee Food Murdoch Square", location: "Murdoch Square", managerId: 0 },
+            { id: 4, name: "Einstein Coffee & Food - Dumas House", location: "Dumas House", managerId: 0 },
+            { id: 5, name: "Einstwins 2 Go", location: "City Centre", managerId: 0 },
+            { id: 6, name: "Einstein Coffee and Food Mt Pleasant", location: "Mt Pleasant Shopping Centre", managerId: 0 }
+        ];
+
+        // ==========================================
+        // 3. INITIALIZATION FUNCTIONS
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initClock();
+            checkSession();
+            setDefaultDates();
+        });
+
+        function initClock() {
+            // Live clock update every second
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('liveClock').textContent = 
+                    now.toLocaleTimeString('en-AU', { hour12: false });
+                document.getElementById('currentDate').textContent = 
+                    now.toLocaleDateString('en-AU', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+            }, 1000);
+
+            // Set default manual date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('manualDate').value = today;
+            
+            // Set default manual time to current time
+            const now = new Date();
+            const currentTime = now.toTimeString().substring(0, 5);
+            document.querySelector('.entry-time').value = currentTime;
+        }
+
+        function setDefaultDates() {
+            // Set default report dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reportStart').value = today;
+            document.getElementById('reportEnd').value = today;
+        }
+
+        function checkSession() {
+            const savedUser = localStorage.getItem('tt_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                loginSuccess(user);
+            }
+        }
+
+        // ==========================================
+        // 4. AUTHENTICATION FUNCTIONS
+        // ==========================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const alertBox = document.getElementById('loginAlert');
+
+            // Clear previous alerts
+            alertBox.style.display = 'none';
+
+            // Hardcoded owner login
+            if (username.toLowerCase() === 'owner' && password === 'admin123') {
+                loginSuccess({
+                    id: OWNER_ID,
+                    name: 'System Owner',
+                    role: 'Owner',
+                    fullAccess: true,
+                    shopId: 0
+                });
+                return;
+            }
+
+            try {
+                // Check in staff database
+                const snapshot = await db.collection('staff')
+                    .where('username', '==', username)
+                    .where('password', '==', password)
+                    .get();
+
+                if (!snapshot.empty) {
+                    const userData = snapshot.docs[0].data();
+                    loginSuccess(userData);
+                } else {
+                    showAlert('Invalid username or password', 'error', 'loginAlert');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Connection error. Please check your internet and try again.', 'error', 'loginAlert');
+            }
+        }
+
+        function loginSuccess(user) {
+            currentUser = user;
+            localStorage.setItem('tt_user', JSON.stringify(user));
+
+            // Show main app, hide login
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').classList.remove('hidden');
+
+            // Update UI with user info
+            document.getElementById('userDisplayName').textContent = user.name;
+            document.getElementById('userDisplayRole').textContent = 
+                user.role + (user.fullAccess ? ' (Full Access)' : '');
+
+            // Setup role-based UI
+            setupRoleBasedUI();
+            
+            // Load initial data
+            loadInitialData();
+            
+            // Initialize real-time listeners
+            initRealTimeListeners();
+
+            // Show welcome message
+            showAlert(`Welcome back, ${user.name}!`, 'success');
+
+            // Show shop name for regular managers
+            if (user.role === 'Manager' && !user.fullAccess && user.shopId) {
+                const shop = shops.find(s => s.id === user.shopId);
+                if (shop) {
+                    document.getElementById('shopNameDisplay').textContent = shop.name;
+                }
+            }
+        }
+
+        function setupRoleBasedUI() {
+            // Hide/show shops tab based on permissions
+            const shopsTab = document.getElementById('navShops');
+            const accessControl = document.getElementById('accessControlSection');
+            const dataManagement = document.getElementById('dataManagementSection');
+            const reportShopFilter = document.getElementById('reportShopFilterDiv');
+            const fullAccessDiv = document.getElementById('fullAccessDiv');
+            const managerOption = document.getElementById('managerOption');
+
+            if (currentUser.role === 'Owner' || currentUser.fullAccess) {
+                shopsTab.classList.remove('hidden');
+                accessControl.style.display = 'block';
+                dataManagement.style.display = 'block';
+                reportShopFilter.style.display = 'block';
+                if (currentUser.role === 'Owner') {
+                    fullAccessDiv.style.display = 'block';
+                }
+            } else {
+                shopsTab.classList.add('hidden');
+                accessControl.style.display = 'none';
+                dataManagement.style.display = 'none';
+                reportShopFilter.style.display = 'none';
+                fullAccessDiv.style.display = 'none';
+                
+                // Regular managers cannot add other managers
+                if (managerOption) {
+                    managerOption.style.display = 'none';
+                }
+            }
+
+            // Update company name from settings
+            const companyName = localStorage.getItem('tt_company') || 'TimeTrack Pro';
+            document.getElementById('companyName').textContent = companyName;
+            document.getElementById('companyNameInput').value = companyName;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('tt_user');
+                currentUser = null;
+                location.reload();
+            }
+        }
+
+        // ==========================================
+        // 5. DATA MANAGEMENT FUNCTIONS
+        // ==========================================
+        async function loadInitialData() {
+            try {
+                // Load shops
+                const shopsSnapshot = await db.collection('shops').get();
+                if (shopsSnapshot.empty) {
+                    // Initialize with default shops
+                    const batch = db.batch();
+                    DEFAULT_SHOPS.forEach(shop => {
+                        const docRef = db.collection('shops').doc(shop.id.toString());
+                        batch.set(docRef, shop);
+                    });
+                    await batch.commit();
+                    shops = DEFAULT_SHOPS;
+                } else {
+                    shops = shopsSnapshot.docs.map(doc => doc.data());
+                }
+
+                // Load staff
+                const staffSnapshot = await db.collection('staff').get();
+                staff = staffSnapshot.docs.map(doc => doc.data());
+
+                // Ensure Imali Randima exists
+                await ensureImaliExists();
+
+                // Load time entries for today
+                const today = new Date().toISOString().split('T')[0];
+                const entriesSnapshot = await db.collection('timeEntries')
+                    .where('date', '>=', today)
+                    .get();
+                timeEntries = entriesSnapshot.docs.map(doc => doc.data());
+
+                // Update UI
+                updateUI();
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                showAlert('Error loading data. Please refresh the page.', 'error');
+            }
+        }
+
+        async function ensureImaliExists() {
+            const imaliDoc = await db.collection('staff').doc(IMALI_ID.toString()).get();
+            if (!imaliDoc.exists) {
+                const imali = {
+                    id: IMALI_ID,
+                    name: "Imali Randima",
+                    role: "Manager",
+                    username: "imali",
+                    password: "Imali@123",
+                    shopId: 0,
+                    fullAccess: true,
+                    status: "Absent"
+                };
+                await db.collection('staff').doc(IMALI_ID.toString()).set(imali);
+                staff.push(imali);
+            }
+        }
+
+        function initRealTimeListeners() {
+            // Real-time shops listener
+            db.collection('shops').onSnapshot((snapshot) => {
+                shops = snapshot.docs.map(doc => doc.data());
+                updateShopsDropdowns();
+                renderShopsGrid();
+            });
+
+            // Real-time staff listener
+            db.collection('staff').onSnapshot((snapshot) => {
+                staff = snapshot.docs.map(doc => doc.data());
+                updateStaffTables();
+                renderManagerList();
+            });
+
+            // Real-time time entries listener
+            db.collection('timeEntries').onSnapshot((snapshot) => {
+                timeEntries = snapshot.docs.map(doc => doc.data());
+                updateStatusTable();
+            });
+        }
+
+        // ==========================================
+        // 6. UI RENDERING FUNCTIONS
+        // ==========================================
+        function updateUI() {
+            updateShopsDropdowns();
+            updateStaffTables();
+            renderShopsGrid();
+            renderManagerList();
+            updateStatusTable();
+        }
+
+        function updateShopsDropdowns() {
+            // Update all shop dropdowns
+            const dropdowns = [
+                document.getElementById('newStaffShop'),
+                document.getElementById('shopManager'),
+                document.getElementById('reportShopFilter')
+            ];
+
+            dropdowns.forEach(dropdown => {
+                if (!dropdown) return;
+                
+                const currentValue = dropdown.value;
+                dropdown.innerHTML = '';
+                
+                if (dropdown.id === 'reportShopFilter') {
+                    dropdown.innerHTML = '<option value="all">All Shops</option>';
+                }
+                if (dropdown.id === 'shopManager') {
+                    dropdown.innerHTML = '<option value="0">No Manager Assigned</option>';
+                }
+
+                // Filter shops based on user permissions
+                let displayShops = shops;
+                if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                    displayShops = displayShops.filter(shop => 
+                        shop.id === currentUser.shopId
+                    );
+                }
+
+                displayShops.forEach(shop => {
+                    const option = document.createElement('option');
+                    option.value = shop.id;
+                    option.textContent = shop.name;
+                    dropdown.appendChild(option);
+                });
+
+                if (currentValue) {
+                    dropdown.value = currentValue;
+                }
+            });
+
+            // Handle manager dropdown separately - Show only managers
+            const managerSelect = document.getElementById('shopManager');
+            if (managerSelect) {
+                // Clear existing options
+                managerSelect.innerHTML = '<option value="0">No Manager Assigned</option>';
+                
+                // Get all managers (excluding Owner)
+                const managers = staff.filter(person => 
+                    person.role === 'Manager' && person.id !== OWNER_ID
+                );
+                
+                // Filter based on permissions
+                let displayManagers = [];
+                
+                if (currentUser.role === 'Owner' || currentUser.fullAccess) {
+                    // Owner or Full Access Manager can see ALL managers
+                    displayManagers = managers;
+                    managerSelect.disabled = false;
+                    managerSelect.title = "";
+                } 
+                else if (currentUser.role === 'Manager') {
+                    // Regular Manager can ONLY see themselves (for viewing purposes only)
+                    // They should NOT be able to assign other managers
+                    displayManagers = managers.filter(manager => 
+                        manager.id === currentUser.id
+                    );
+                    
+                    // Disable the dropdown for regular managers
+                    managerSelect.disabled = true;
+                    managerSelect.title = "Only Owners or Full Access Managers can assign shop managers";
+                }
+                
+                displayManagers.forEach(manager => {
+                    const option = document.createElement('option');
+                    option.value = manager.id;
+                    option.textContent = `${manager.name} (ID: ${formatStaffId(manager.id)})`;
+                    managerSelect.appendChild(option);
+                });
+            }
+        }
+
+        function updateStaffTables() {
+            // Update staff table
+            const tbody = document.getElementById('staffTableBody');
+            tbody.innerHTML = '';
+
+            let displayStaff = staff.filter(person => person.id !== OWNER_ID);
+            
+            // Filter based on user permissions
+            if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                displayStaff = displayStaff.filter(person => 
+                    person.shopId === currentUser.shopId
+                );
+            }
+
+            // Sort by ID
+            displayStaff.sort((a, b) => a.id - b.id);
+
+            displayStaff.forEach(person => {
+                const shop = shops.find(s => s.id === person.shopId);
+                const shopName = shop ? shop.name : 'Unassigned';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${formatStaffId(person.id)}</strong></td>
+                    <td>${person.name}</td>
+                    <td>${person.role}</td>
+                    <td>${shopName}</td>
+                    <td><span class="badge badge-${person.status === 'Present' ? 'present' : 
+                                               person.status === 'Break' ? 'break' : 'absent'}">${person.status}</span></td>
+                    <td>${person.fullAccess ? '<span class="badge badge-present">Full Access</span>' : 
+                          person.role === 'Manager' ? '<span class="badge badge-break">Manager</span>' : 
+                          '<span class="badge">Staff</span>'}</td>
+                    <td>
+                        <button class="btn btn-sm" style="background: var(--danger); color: white; padding: 0.25rem 0.5rem;" 
+                                onclick="deleteStaffMember(${person.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function formatStaffId(id) {
+            // Format ID as 4-digit number with leading zeros
+            return id.toString().padStart(4, '0');
+        }
+
+        function updateStatusTable() {
+            const tbody = document.getElementById('statusTableBody');
+            tbody.innerHTML = '';
+
+            let displayStaff = staff;
+            
+            // Filter based on user permissions
+            if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                displayStaff = displayStaff.filter(person => 
+                    person.shopId === currentUser.shopId
+                );
+            }
+
+            // Sort by ID
+            displayStaff.sort((a, b) => a.id - b.id);
+
+            displayStaff.forEach(person => {
+                // Find latest entry for this person
+                const latestEntry = timeEntries
+                    .filter(entry => entry.staffId === person.id)
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+                let timeDisplay = latestEntry 
+                    ? new Date(latestEntry.timestamp).toLocaleTimeString('en-AU', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                      })
+                    : '-';
+
+                const shop = shops.find(s => s.id === person.shopId);
+                const shopName = shop ? shop.name : 'Unassigned';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${formatStaffId(person.id)}</strong></td>
+                    <td>${person.name}</td>
+                    <td>${shopName}</td>
+                    <td><span class="badge badge-${person.status === 'Present' ? 'present' : 
+                                               person.status === 'Break' ? 'break' : 'absent'}">${person.status}</span></td>
+                    <td>${timeDisplay}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderShopsGrid() {
+            const grid = document.getElementById('shopsGrid');
+            grid.innerHTML = '';
+
+            // Filter shops based on permissions
+            let displayShops = shops;
+            if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                displayShops = displayShops.filter(shop => 
+                    shop.id === currentUser.shopId
+                );
+            }
+
+            displayShops.forEach(shop => {
+                const staffInShop = staff.filter(person => person.shopId === shop.id);
+                const manager = staff.find(person => person.id === shop.managerId);
+                
+                const card = document.createElement('div');
+                card.className = 'card shop-card';
+                card.innerHTML = `
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">${shop.name}</h3>
+                    <p style="color: var(--gray); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        <i class="fas fa-map-marker-alt"></i> ${shop.location || 'No location set'}
+                    </p>
+                    <p style="margin-bottom: 0.5rem;">
+                        <strong>Manager:</strong> ${manager ? manager.name : 'Unassigned'}
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        <strong>Staff Count:</strong> ${staffInShop.length}
+                    </p>
+                    <div class="shop-actions">
+                        <button class="btn btn-primary" style="flex: 1;" 
+                                onclick="viewShopDetails(${shop.id})">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        ${currentUser.role === 'Owner' || currentUser.fullAccess ? `
+                            <button class="btn btn-info" style="flex: 1;" 
+                                    onclick="editShop(${shop.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger" style="flex: 1;" 
+                                    onclick="deleteShop(${shop.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderManagerList() {
+            const managerList = document.getElementById('managerList');
+            if (!managerList) return;
+
+            const managers = staff.filter(person => 
+                person.role === 'Manager' && person.id !== OWNER_ID
+            );
+
+            managerList.innerHTML = '';
+            
+            managers.forEach(manager => {
+                const shop = shops.find(s => s.id === manager.shopId);
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.style.marginBottom = '0.5rem';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${manager.name}</strong>
+                            <p style="font-size: 0.8rem; color: var(--gray); margin-top: 0.25rem;">
+                                Shop: ${shop ? shop.name : 'Unassigned'} | ID: ${formatStaffId(manager.id)} | Username: ${manager.username}
+                            </p>
+                        </div>
+                        <div>
+                            ${currentUser.role === 'Owner' ? `
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 0.9rem;">Full Access</span>
+                                    <label class="switch">
+                                        <input type="checkbox" ${manager.fullAccess ? 'checked' : ''} 
+                                               onchange="toggleFullAccess(${manager.id}, this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                            ` : manager.fullAccess ? 
+                                '<span class="badge badge-present">Full Access</span>' : 
+                                '<span class="badge badge-break">Manager</span>'}
+                        </div>
+                    </div>
+                `;
+                managerList.appendChild(item);
+            });
+        }
+
+        // ==========================================
+        // 7. TIME ENTRY FUNCTIONS (WITH MULTI-ENTRY)
+        // ==========================================
+        function toggleManualMode() {
+            const isManual = document.getElementById('manualModeToggle').checked;
+            const panel = document.getElementById('manualEntryPanel');
+            const liveDisplay = document.getElementById('liveClockDisplay');
+            const liveEntryFields = document.getElementById('liveEntryFields');
+
+            if (isManual) {
+                panel.classList.add('active');
+                liveDisplay.classList.add('hidden');
+                liveEntryFields.classList.add('hidden');
+                resetManualEntries();
+            } else {
+                panel.classList.remove('active');
+                liveDisplay.classList.remove('hidden');
+                liveEntryFields.classList.remove('hidden');
+            }
+        }
+
+        function addEntryRow() {
+            const entryRows = document.getElementById('manualEntryRows');
+            const row = document.createElement('div');
+            row.className = 'entry-row';
+            row.innerHTML = `
+                <select class="form-control entry-type">
+                    <option value="clock-in">🟢 Clock In</option>
+                    <option value="break-start">☕ Start Break</option>
+                    <option value="break-end">🔙 End Break</option>
+                    <option value="clock-out">🔴 Clock Out</option>
+                </select>
+                <input type="time" class="form-control entry-time" value="09:00">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeEntryRow(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            entryRows.appendChild(row);
+        }
+
+        function removeEntryRow(button) {
+            const row = button.closest('.entry-row');
+            if (row && document.querySelectorAll('.entry-row').length > 1) {
+                row.remove();
+            }
+        }
+
+        function resetManualEntries() {
+            const entryRows = document.getElementById('manualEntryRows');
+            entryRows.innerHTML = '';
+            
+            // Add one default row
+            const row = document.createElement('div');
+            row.className = 'entry-row';
+            row.innerHTML = `
+                <select class="form-control entry-type">
+                    <option value="clock-in">🟢 Clock In</option>
+                    <option value="break-start">☕ Start Break</option>
+                    <option value="break-end">🔙 End Break</option>
+                    <option value="clock-out">🔴 Clock Out</option>
+                </select>
+                <input type="time" class="form-control entry-time" value="09:00">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeEntryRow(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            entryRows.appendChild(row);
+        }
+
+        function searchStaff() {
+            const searchTerm = document.getElementById('staffSearch').value.toLowerCase();
+            const suggestionsBox = document.getElementById('staffSuggestions');
+            
+            // Clear previous suggestions
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.style.display = 'none';
+
+            if (searchTerm.length < 1) return;
+
+            let filteredStaff = staff.filter(person => 
+                person.id !== OWNER_ID && person.role !== 'Owner'
+            );
+
+            // Filter based on permissions
+            if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                filteredStaff = filteredStaff.filter(person => 
+                    person.shopId === currentUser.shopId
+                );
+            }
+
+            // Search by name or ID
+            filteredStaff = filteredStaff.filter(person =>
+                person.name.toLowerCase().includes(searchTerm) ||
+                person.id.toString().includes(searchTerm) ||
+                formatStaffId(person.id).includes(searchTerm)
+            );
+
+            if (filteredStaff.length > 0) {
+                suggestionsBox.style.display = 'block';
+                filteredStaff.forEach(person => {
+                    const shop = shops.find(s => s.id === person.shopId);
+                    const shopName = shop ? shop.name : 'Unassigned';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.innerHTML = `
+                        <strong>${person.name}</strong>
+                        <span style="font-size: 0.8rem; color: var(--gray); display: block;">
+                            ID: ${formatStaffId(person.id)} | Shop: ${shopName} | Role: ${person.role}
+                        </span>
+                    `;
+                    item.onclick = () => selectStaff(person);
+                    suggestionsBox.appendChild(item);
+                });
+            }
+        }
+
+        function selectStaff(person) {
+            document.getElementById('staffSearch').value = 
+                `${person.name} (ID: ${formatStaffId(person.id)})`;
+            document.getElementById('selectedStaffId').value = person.id;
+            document.getElementById('staffSuggestions').style.display = 'none';
+        }
+
+        async function submitTimeEntry(e) {
+            e.preventDefault();
+            
+            const staffId = parseInt(document.getElementById('selectedStaffId').value);
+            const isManual = document.getElementById('manualModeToggle').checked;
+
+            if (!staffId) {
+                showAlert('Please select a staff member first', 'error');
+                return;
+            }
+
+            const person = staff.find(p => p.id === staffId);
+            if (!person) {
+                showAlert('Staff member not found', 'error');
+                return;
+            }
+
+            try {
+                if (isManual) {
+                    // Handle multi-entry manual mode
+                    await submitManualEntries(staffId, person);
+                } else {
+                    // Handle single live entry
+                    await submitLiveEntry(staffId, person);
+                }
+
+                // Reset form
+                document.getElementById('staffSearch').value = '';
+                document.getElementById('selectedStaffId').value = '';
+                document.getElementById('entryType').value = '';
+                
+                showAlert('Time entry recorded successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving time entry:', error);
+                showAlert('Error saving time entry. Please try again.', 'error');
+            }
+        }
+
+        async function submitLiveEntry(staffId, person) {
+            const entryType = document.getElementById('entryType').value;
+            if (!entryType) {
+                showAlert('Please select an action type', 'error');
+                return;
+            }
+
+            const timestamp = new Date().toISOString();
+            const entry = {
+                id: Date.now(),
+                staffId: staffId,
+                staffName: person.name,
+                shopId: person.shopId,
+                type: entryType,
+                timestamp: timestamp,
+                date: timestamp.split('T')[0],
+                manual: false,
+                recordedBy: currentUser.name
+            };
+
+            // Update staff status
+            let newStatus = person.status;
+            if (entryType === 'clock-in' || entryType === 'break-end') newStatus = 'Present';
+            if (entryType === 'break-start') newStatus = 'Break';
+            if (entryType === 'clock-out') newStatus = 'Absent';
+
+            // Save to Firebase
+            await db.collection('timeEntries').doc(entry.id.toString()).set(entry);
+            await db.collection('staff').doc(staffId.toString()).update({
+                status: newStatus
+            });
+        }
+
+        async function submitManualEntries(staffId, person) {
+            const date = document.getElementById('manualDate').value;
+            if (!date) {
+                showAlert('Please select a date for manual entries', 'error');
+                return;
+            }
+
+            const entryRows = document.querySelectorAll('.entry-row');
+            if (entryRows.length === 0) {
+                showAlert('Please add at least one time entry', 'error');
+                return;
+            }
+
+            const entries = [];
+            for (const row of entryRows) {
+                const type = row.querySelector('.entry-type').value;
+                const time = row.querySelector('.entry-time').value;
+                
+                if (!time) {
+                    showAlert('Please enter time for all entries', 'error');
+                    return;
+                }
+
+                const timestamp = new Date(`${date}T${time}:00`).toISOString();
+                entries.push({
+                    id: Date.now() + Math.random(),
+                    staffId: staffId,
+                    staffName: person.name,
+                    shopId: person.shopId,
+                    type: type,
+                    timestamp: timestamp,
+                    date: date,
+                    manual: true,
+                    recordedBy: currentUser.name
+                });
+            }
+
+            // Save all entries to Firebase
+            const batch = db.batch();
+            entries.forEach(entry => {
+                const docRef = db.collection('timeEntries').doc(entry.id.toString());
+                batch.set(docRef, entry);
+            });
+
+            // Update staff status based on last entry
+            const lastEntry = entries[entries.length - 1];
+            let newStatus = person.status;
+            if (lastEntry.type === 'clock-in' || lastEntry.type === 'break-end') newStatus = 'Present';
+            if (lastEntry.type === 'break-start') newStatus = 'Break';
+            if (lastEntry.type === 'clock-out') newStatus = 'Absent';
+
+            batch.update(db.collection('staff').doc(staffId.toString()), {
+                status: newStatus
+            });
+
+            await batch.commit();
+        }
+
+        // ==========================================
+        // 8. STAFF MANAGEMENT FUNCTIONS
+        // ==========================================
+        function toggleManagerFields() {
+            const role = document.getElementById('newStaffRole').value;
+            const fields = document.getElementById('managerFields');
+            
+            if (role === 'Manager') {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        }
+
+        async function addStaff(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('newStaffName').value;
+            const role = document.getElementById('newStaffRole').value;
+            const shopId = parseInt(document.getElementById('newStaffShop').value);
+            
+            let username = '';
+            let password = '';
+            let fullAccess = false;
+
+            // Generate 4-digit staff ID
+            const newId = await getNextStaffId();
+            
+            if (role === 'Manager') {
+                username = document.getElementById('newStaffUsername').value;
+                password = document.getElementById('newStaffPassword').value;
+                fullAccess = document.getElementById('newStaffFullAccess')?.checked || false;
+                
+                if (!username || !password) {
+                    showAlert('Managers require both username and password', 'error');
+                    return;
+                }
+
+                // Regular managers cannot add other managers
+                if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                    showAlert('Regular managers cannot add other managers. Only staff members can be added.', 'error');
+                    return;
+                }
+            }
+
+            // Check if username already exists
+            const usernameExists = staff.some(person => 
+                person.username && person.username.toLowerCase() === username.toLowerCase()
+            );
+            
+            if (usernameExists && role === 'Manager') {
+                showAlert('Username already exists. Please choose a different one.', 'error');
+                return;
+            }
+
+            const newStaff = {
+                id: newId,
+                name: name,
+                role: role,
+                shopId: shopId,
+                username: username,
+                password: password,
+                fullAccess: fullAccess,
+                status: 'Absent'
+            };
+
+            try {
+                await db.collection('staff').doc(newId.toString()).set(newStaff);
+                
+                // If assigned as shop manager, update shop
+                if (role === 'Manager' && shopId !== 0) {
+                    await db.collection('shops').doc(shopId.toString()).update({
+                        managerId: newId
+                    });
+                }
+
+                closeModal('addStaffModal');
+                e.target.reset();
+                
+                showAlert(`Staff member "${name}" added successfully! Staff ID: ${formatStaffId(newId)}`, 'success');
+            } catch (error) {
+                console.error('Error adding staff:', error);
+                showAlert('Error adding staff member. Please try again.', 'error');
+            }
+        }
+
+        async function getNextStaffId() {
+            // Get highest current staff ID
+            let maxId = STARTING_STAFF_ID - 1;
+            staff.forEach(person => {
+                if (person.id > maxId && person.id < 9999) {
+                    maxId = person.id;
+                }
+            });
+            return maxId + 1;
+        }
+
+        async function deleteStaffMember(staffId) {
+            if (!confirm('Are you sure you want to delete this staff member? This action cannot be undone.')) return;
+
+            try {
+                await db.collection('staff').doc(staffId.toString()).delete();
+                
+                // If this staff member was a shop manager, remove them from shop
+                const shop = shops.find(s => s.managerId === staffId);
+                if (shop) {
+                    await db.collection('shops').doc(shop.id.toString()).update({
+                        managerId: 0
+                    });
+                }
+                
+                showAlert('Staff member deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting staff:', error);
+                showAlert('Error deleting staff member. Please try again.', 'error');
+            }
+        }
+
+        // ==========================================
+        // 9. SHOP MANAGEMENT FUNCTIONS
+        // ==========================================
+        async function saveShop(e) {
+            e.preventDefault();
+            
+            const shopId = document.getElementById('shopId').value;
+            const name = document.getElementById('shopName').value;
+            const location = document.getElementById('shopLocation').value;
+            const managerId = parseInt(document.getElementById('shopManager').value);
+
+            // Check if user has permission to assign managers
+            if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                // Regular managers cannot assign other managers
+                if (managerId !== 0 && managerId !== currentUser.id) {
+                    showAlert('Only Owners or Full Access Managers can assign shop managers', 'error');
+                    return;
+                }
+            }
+
+            let shopData = {
+                name: name,
+                location: location,
+                managerId: managerId || 0
+            };
+
+            try {
+                if (shopId) {
+                    // Update existing shop
+                    await db.collection('shops').doc(shopId).update(shopData);
+                    showAlert('Shop updated successfully!', 'success');
+                } else {
+                    // Add new shop
+                    const newId = Date.now();
+                    shopData.id = newId;
+                    await db.collection('shops').doc(newId.toString()).set(shopData);
+                    showAlert('Shop added successfully!', 'success');
+                }
+
+                closeModal('addShopModal');
+                e.target.reset();
+            } catch (error) {
+                console.error('Error saving shop:', error);
+                showAlert('Error saving shop. Please try again.', 'error');
+            }
+        }
+
+        async function deleteShop(shopId) {
+            if (!confirm('Are you sure you want to delete this shop? All staff members assigned to this shop will become unassigned.')) return;
+
+            try {
+                // Unassign all staff from this shop
+                const staffInShop = staff.filter(person => person.shopId === shopId);
+                const batch = db.batch();
+                
+                staffInShop.forEach(person => {
+                    const staffRef = db.collection('staff').doc(person.id.toString());
+                    batch.update(staffRef, { shopId: 0 });
+                });
+
+                // Delete the shop
+                batch.delete(db.collection('shops').doc(shopId.toString()));
+                
+                await batch.commit();
+                showAlert('Shop deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting shop:', error);
+                showAlert('Error deleting shop. Please try again.', 'error');
+            }
+        }
+
+        function viewShopDetails(shopId) {
+            const shop = shops.find(s => s.id === shopId);
+            if (!shop) return;
+
+            const staffInShop = staff.filter(person => person.shopId === shopId);
+            const manager = staff.find(person => person.id === shop.managerId);
+
+            document.getElementById('shopDetailsTitle').textContent = shop.name;
+            document.getElementById('shopDetailsLocation').textContent = shop.location || 'No location specified';
+            document.getElementById('shopDetailsManager').textContent = manager ? 
+                `${manager.name} (ID: ${formatStaffId(manager.id)})` : 'No manager assigned';
+
+            const staffTbody = document.getElementById('shopDetailsStaff');
+            staffTbody.innerHTML = '';
+
+            if (staffInShop.length === 0) {
+                staffTbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 1rem; color: var(--gray);">
+                            No staff members assigned to this shop
+                        </td>
+                    </tr>
+                `;
+            } else {
+                staffInShop.forEach(person => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatStaffId(person.id)}</td>
+                        <td>${person.name}</td>
+                        <td>${person.role}</td>
+                        <td><span class="badge badge-${person.status === 'Present' ? 'present' : 
+                                                       person.status === 'Break' ? 'break' : 'absent'}">${person.status}</span></td>
+                    `;
+                    staffTbody.appendChild(row);
+                });
+            }
+
+            // Update button actions
+            document.getElementById('editShopBtn').onclick = () => editShop(shopId);
+            document.getElementById('deleteShopBtn').onclick = () => deleteShop(shopId);
+
+            openModal('shopDetailsModal');
+        }
+
+        function editShop(shopId) {
+            const shop = shops.find(s => s.id === shopId);
+            if (!shop) return;
+
+            document.getElementById('shopModalTitle').textContent = 'Edit Shop Details';
+            document.getElementById('shopId').value = shopId;
+            document.getElementById('shopName').value = shop.name;
+            document.getElementById('shopLocation').value = shop.location || '';
+            document.getElementById('shopManager').value = shop.managerId || 0;
+
+            closeModal('shopDetailsModal');
+            openModal('addShopModal');
+        }
+
+        // ==========================================
+        // 10. FULL ACCESS MANAGEMENT
+        // ==========================================
+        async function toggleFullAccess(managerId, hasAccess) {
+            try {
+                await db.collection('staff').doc(managerId.toString()).update({
+                    fullAccess: hasAccess
+                });
+                showAlert(`Full access ${hasAccess ? 'granted to' : 'revoked from'} manager successfully!`, 'success');
+            } catch (error) {
+                console.error('Error updating full access:', error);
+                showAlert('Error updating manager access. Please try again.', 'error');
+            }
+        }
+
+        // ==========================================
+        // 11. REPORTING FUNCTIONS WITH DETAILED CALCULATIONS
+        // ==========================================
+        function setReportPeriod(period) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.report-period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            const today = new Date();
+            const startDate = new Date();
+            const endDate = new Date();
+
+            switch (period) {
+                case 'daily':
+                    // Just today
+                    break;
+                case 'weekly':
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'biweekly':
+                    startDate.setDate(today.getDate() - 14);
+                    break;
+                case 'monthly':
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+            }
+
+            document.getElementById('reportStart').value = startDate.toISOString().split('T')[0];
+            document.getElementById('reportEnd').value = endDate.toISOString().split('T')[0];
+        }
+
+        async function generateDetailedReport() {
+            const startDate = document.getElementById('reportStart').value;
+            const endDate = document.getElementById('reportEnd').value;
+            const shopFilter = document.getElementById('reportShopFilter').value;
+
+            if (!startDate || !endDate) {
+                showAlert('Please select start and end dates', 'error');
+                return;
+            }
+
+            try {
+                // Fetch time entries for the date range
+                const entriesSnapshot = await db.collection('timeEntries')
+                    .where('date', '>=', startDate)
+                    .where('date', '<=', endDate)
+                    .get();
+                
+                const filteredEntries = entriesSnapshot.docs.map(doc => doc.data());
+
+                // Filter entries based on shop
+                let reportEntries = filteredEntries;
+                if (shopFilter !== 'all') {
+                    reportEntries = reportEntries.filter(entry => 
+                        entry.shopId === parseInt(shopFilter)
+                    );
+                }
+
+                // Filter based on user permissions
+                if (currentUser.role === 'Manager' && !currentUser.fullAccess) {
+                    reportEntries = reportEntries.filter(entry => 
+                        entry.shopId === currentUser.shopId
+                    );
+                }
+
+                // Calculate detailed report data
+                const reportData = calculateDetailedReport(reportEntries);
+                
+                // Update report table
+                updateReportTable(reportData);
+                
+                // Update summary statistics
+                updateReportSummary(reportData);
+                
+                // Show report summary
+                document.getElementById('reportSummary').style.display = 'block';
+                
+                showAlert('Report generated successfully!', 'success');
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showAlert('Error generating report. Please try again.', 'error');
+            }
+        }
+
+        function calculateDetailedReport(entries) {
+            // Group entries by staff and date
+            const groupedData = {};
+            
+            entries.forEach(entry => {
+                const key = `${entry.date}-${entry.staffId}`;
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        date: entry.date,
+                        staffId: entry.staffId,
+                        staffName: entry.staffName,
+                        shopId: entry.shopId,
+                        entries: []
+                    };
+                }
+                groupedData[key].entries.push(entry);
+            });
+
+            // Calculate hours for each group
+            const reportData = [];
+            let totalWorkHours = 0;
+            let totalBreakMinutes = 0;
+            let totalWeekendHours = 0;
+
+            Object.values(groupedData).forEach(group => {
+                // Sort entries by timestamp
+                group.entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                
+                let clockIn = null;
+                let clockOut = null;
+                let breakStart = null;
+                let breakEnd = null;
+                let breakMinutes = 0;
+                let workMinutes = 0;
+                let weekendMinutes = 0;
+
+                // Process entries
+                group.entries.forEach(entry => {
+                    const entryTime = new Date(entry.timestamp);
+                    const isWeekend = entryTime.getDay() === 0 || entryTime.getDay() === 6;
+
+                    switch (entry.type) {
+                        case 'clock-in':
+                            clockIn = entryTime;
+                            break;
+                        case 'break-start':
+                            if (clockIn) {
+                                workMinutes += (entryTime - clockIn) / (1000 * 60);
+                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                            }
+                            breakStart = entryTime;
+                            break;
+                        case 'break-end':
+                            if (breakStart) {
+                                breakMinutes += (entryTime - breakStart) / (1000 * 60);
+                            }
+                            clockIn = entryTime;
+                            break;
+                        case 'clock-out':
+                            if (clockIn) {
+                                workMinutes += (entryTime - clockIn) / (1000 * 60);
+                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                            }
+                            clockOut = entryTime;
+                            break;
+                    }
+                });
+
+                // Calculate totals
+                const workHours = (workMinutes / 60).toFixed(2);
+                const breakHours = (breakMinutes / 60).toFixed(2);
+                const weekendHours = (weekendMinutes / 60).toFixed(2);
+
+                totalWorkHours += parseFloat(workHours);
+                totalBreakMinutes += breakMinutes;
+                totalWeekendHours += parseFloat(weekendHours);
+
+                const shop = shops.find(s => s.id === group.shopId);
+                const shopName = shop ? shop.name : 'Unassigned';
+
+                reportData.push({
+                    date: group.date,
+                    staffName: group.staffName,
+                    shopName: shopName,
+                    clockIn: group.entries.find(e => e.type === 'clock-in') ? 
+                        new Date(group.entries.find(e => e.type === 'clock-in').timestamp).toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'}) : '-',
+                    clockOut: group.entries.find(e => e.type === 'clock-out') ? 
+                        new Date(group.entries.find(e => e.type === 'clock-out').timestamp).toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'}) : '-',
+                    breakMinutes: Math.round(breakMinutes),
+                    workHours: workHours,
+                    weekendHours: weekendHours,
+                    isWeekend: weekendMinutes > 0
+                });
+            });
+
+            return {
+                rows: reportData,
+                summary: {
+                    totalWorkHours: totalWorkHours.toFixed(2),
+                    totalBreakHours: (totalBreakMinutes / 60).toFixed(2),
+                    totalWeekendHours: totalWeekendHours.toFixed(2),
+                    staffCount: new Set(reportData.map(r => r.staffName)).size
+                }
+            };
+        }
+
+        function updateReportTable(reportData) {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+
+            reportData.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                if (row.isWeekend) {
+                    tr.style.backgroundColor = '#f0f7ff';
+                }
+                tr.innerHTML = `
+                    <td>${row.date}</td>
+                    <td>${row.staffName}</td>
+                    <td>${row.shopName}</td>
+                    <td>${row.clockIn}</td>
+                    <td>${row.clockOut}</td>
+                    <td>${row.breakMinutes}</td>
+                    <td>${row.workHours}</td>
+                    <td><span class="badge ${row.isWeekend ? 'badge-weekend' : ''}">${row.weekendHours}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateReportSummary(reportData) {
+            document.getElementById('totalWorkHours').textContent = reportData.summary.totalWorkHours;
+            document.getElementById('totalBreakHours').textContent = reportData.summary.totalBreakHours;
+            document.getElementById('totalWeekendHours').textContent = reportData.summary.totalWeekendHours;
+            document.getElementById('totalStaffCount').textContent = reportData.summary.staffCount;
+        }
+
+        function exportReportPDF() {
+            const element = document.getElementById('reportTable').parentElement;
+            const companyName = localStorage.getItem('tt_company') || 'TimeTrack Pro';
+            const generatedBy = currentUser.name;
+            const generatedDate = new Date().toLocaleDateString('en-AU');
+            const generatedTime = new Date().toLocaleTimeString('en-AU');
+            
+            const reportTitle = document.createElement('div');
+            reportTitle.style.marginBottom = '20px';
+            reportTitle.style.textAlign = 'center';
+            reportTitle.innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 5px;">${companyName}</h2>
+                <h3 style="color: var(--text); margin-bottom: 10px;">Staff Time Report</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">
+                    Generated by: ${generatedBy} | Date: ${generatedDate} | Time: ${generatedTime}
+                </p>
+                <hr style="margin: 15px 0; border-color: var(--border);">
+            `;
+            
+            element.insertBefore(reportTitle, element.firstChild);
+            
+            const opt = {
+                margin: 1,
+                filename: `TimeTrack_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                reportTitle.remove();
+                showAlert('PDF report exported successfully!', 'success');
+            });
+        }
+
+        function exportReportExcel() {
+            const table = document.getElementById('reportTable');
+            const ws = XLSX.utils.table_to_sheet(table);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Time Report");
+            XLSX.writeFile(wb, `TimeTrack_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showAlert('Excel report exported successfully!', 'success');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // ==========================================
+        // 12. DATA DELETION FUNCTIONS
+        // ==========================================
+        function showVerificationModal() {
+            const deleteStaff = document.getElementById('deleteStaff').checked;
+            const deleteManagers = document.getElementById('deleteManagers').checked;
+            const deleteFullAccessManagers = document.getElementById('deleteFullAccessManagers').checked;
+            const confirmDelete = document.getElementById('confirmDelete').checked;
+
+            if (!(deleteStaff || deleteManagers || deleteFullAccessManagers)) {
+                showAlert('Please select at least one data type to delete', 'error');
+                return;
+            }
+
+            if (!confirmDelete) {
+                showAlert('Please confirm that you understand this action cannot be undone', 'error');
+                return;
+            }
+
+            // Generate random 4-digit verification code
+            const verificationCode = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('verificationCode').textContent = verificationCode;
+            document.getElementById('verificationInput').value = '';
+            
+            openModal('verificationModal');
+        }
+
+        async function confirmDataDeletion() {
+            const enteredCode = document.getElementById('verificationInput').value;
+            const expectedCode = document.getElementById('verificationCode').textContent;
+
+            if (enteredCode !== expectedCode) {
+                showAlert('Incorrect verification code. Please try again.', 'error');
+                return;
+            }
+
+            const deleteStaff = document.getElementById('deleteStaff').checked;
+            const deleteManagers = document.getElementById('deleteManagers').checked;
+            const deleteFullAccessManagers = document.getElementById('deleteFullAccessManagers').checked;
+
+            // Confirm final deletion
+            if (!confirm('FINAL WARNING: This will permanently delete all selected data. This action CANNOT be undone. Click OK to proceed with deletion.')) {
+                closeModal('verificationModal');
+                return;
+            }
+
+            try {
+                // Delete selected data
+                const batch = db.batch();
+                const staffToDelete = [];
+
+                staff.forEach(person => {
+                    if (person.id === OWNER_ID || person.id === IMALI_ID) return; // Never delete owner or Imali
+                    
+                    if (deleteStaff && person.role === 'Staff') {
+                        staffToDelete.push(person.id);
+                    }
+                    
+                    if (deleteManagers && person.role === 'Manager' && !person.fullAccess) {
+                        staffToDelete.push(person.id);
+                    }
+                    
+                    if (deleteFullAccessManagers && person.fullAccess) {
+                        staffToDelete.push(person.id);
+                    }
+                });
+
+                // Delete staff documents
+                staffToDelete.forEach(staffId => {
+                    const staffRef = db.collection('staff').doc(staffId.toString());
+                    batch.delete(staffRef);
+                });
+
+                await batch.commit();
+                
+                closeModal('verificationModal');
+                
+                // Reset checkboxes
+                document.getElementById('deleteStaff').checked = false;
+                document.getElementById('deleteManagers').checked = false;
+                document.getElementById('deleteFullAccessManagers').checked = false;
+                document.getElementById('confirmDelete').checked = false;
+                
+                showAlert('Selected data has been permanently deleted successfully.', 'success');
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showAlert('Error deleting data. Please try again.', 'error');
+            }
+        }
+
+        // ==========================================
+        // 13. SETTINGS FUNCTIONS
+        // ==========================================
+        function updateCompanySettings(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('companyNameInput').value;
+            
+            localStorage.setItem('tt_company', companyName);
+            document.getElementById('companyName').textContent = companyName;
+            
+            showAlert('Company settings updated successfully!', 'success');
+        }
+
+        async function changePassword(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showAlert('New passwords do not match', 'error');
+                return;
+            }
+
+            if (currentUser.id === OWNER_ID) {
+                // For owner, just show success message
+                showAlert('Password updated successfully!', 'success');
+            } else {
+                // For managers, update in Firebase
+                try {
+                    // Verify current password
+                    const currentStaff = staff.find(s => s.id === currentUser.id);
+                    if (!currentStaff || currentStaff.password !== currentPassword) {
+                        showAlert('Current password is incorrect', 'error');
+                        return;
+                    }
+
+                    await db.collection('staff').doc(currentUser.id.toString()).update({
+                        password: newPassword
+                    });
+                    
+                    // Update current user object
+                    currentUser.password = newPassword;
+                    localStorage.setItem('tt_user', JSON.stringify(currentUser));
+                    
+                    showAlert('Password updated successfully!', 'success');
+                } catch (error) {
+                    console.error('Error updating password:', error);
+                    showAlert('Error updating password. Please try again.', 'error');
+                }
+            }
+
+            e.target.reset();
+        }
+
+        // ==========================================
+        // 14. HELP & SUPPORT FUNCTIONS
+        // ==========================================
+        function downloadUserManual() {
+            const manualContent = `
+                TimeTrack Pro V2.00 - Complete User Manual
+                ==========================================
+                
+                Welcome to TimeTrack Pro V2.00, the complete staff time management system for Australian businesses.
+                
+                1. SYSTEM OVERVIEW
+                   - Multi-shop staff management
+                   - Real-time time tracking
+                   - Detailed reporting
+                   - Cross-device synchronization
+                
+                2. LOGIN CREDENTIALS
+                   Owner: username="owner", password="admin123"
+                   Imali Randima: username="imali", password="Imali@123"
+                   Managers: Individual accounts created by owner
+                
+                3. STAFF MANAGEMENT
+                   - Staff IDs: 4-digit numbers starting from 1001
+                   - Roles: Staff, Manager, Full Access Manager
+                   - Status tracking: Present, Break, Absent
+                
+                4. TIME ENTRY
+                   - Live entry: Current time entries
+                   - Manual entry: Multi-entry mode for past/future
+                   - Break tracking: Automatic break duration calculation
+                
+                5. REPORTS
+                   - Daily, Weekly, Bi-weekly, Monthly
+                   - Work hours calculation
+                   - Break duration tracking
+                   - Weekend hours identification
+                   - PDF and Excel export
+                
+                6. SECURITY FEATURES
+                   - Role-based permissions
+                   - Verification for data deletion
+                   - Encrypted password storage
+                   - Session management
+                
+                7. SUPPORT
+                   For assistance, contact the system administrator
+                   Version: 2.00
+                   Developer: Nimnath Graphic
+                
+                This manual is part of TimeTrack Pro V2.00 - Professional Staff Management System.
+            `;
+            
+            const blob = new Blob([manualContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'TimeTrack_Pro_V2_User_Manual.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showAlert('User manual downloaded successfully!', 'success');
+        }
+
+        // ==========================================
+        // 15. UTILITY FUNCTIONS
+        // ==========================================
+        function getShopName(shopId) {
+            if (shopId === 0) return 'Unassigned';
+            const shop = shops.find(s => s.id === shopId);
+            return shop ? shop.name : 'Unknown Shop';
+        }
+
+        function showAlert(message, type = 'success', containerId = 'globalAlert') {
+            const alertDiv = document.getElementById(containerId);
+            if (!alertDiv) return;
+            
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                  type === 'error' ? 'exclamation-circle' : 
+                                  type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            alertDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected tab and activate nav item
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+
+            // Update page title
+            const pageTitle = document.querySelector(`#view-${tabId} .page-title`);
+            if (pageTitle) {
+                document.title = `${pageTitle.textContent} - TimeTrack Pro V2.00`;
+            }
+        }
+
+        function openModal(modalId) {
+            updateShopsDropdowns();
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function filterStatusTable() {
+            const searchTerm = document.getElementById('statusSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#statusTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-box')) {
+                document.getElementById('staffSuggestions').style.display = 'none';
+            }
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            console.log('TimeTrack Pro V2.00 loaded successfully');
+            console.log('Features:');
+            console.log('- 4-digit Staff IDs starting from 1001');
+            console.log('- Multi-entry manual time entry');
+            console.log('- Detailed report calculations');
+            console.log('- Shop edit functionality');
+            console.log('- Secure data deletion with verification');
+            console.log('- Complete help & support section');
+            console.log('- Professional PDF export with headers');
+            console.log('- Cross-device Firebase sync');
+        });
+    </script>
+</body>
+</html>
