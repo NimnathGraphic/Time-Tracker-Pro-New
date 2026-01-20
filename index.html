@@ -1214,20 +1214,17 @@
                 </div>
                 
                 <div class="help-content">
-                    <!-- Introduction -->
                     <div class="help-section">
                         <h3>Welcome to TimeTrack Pro V2.00</h3>
                         <p>TimeTrack Pro is a comprehensive staff time management system designed for Australian businesses with multiple shop locations. This system helps you track staff attendance, manage shops, and generate detailed reports.</p>
                     </div>
 
-                    <!-- Getting Started -->
                     <div class="help-section">
                         <h3>Getting Started</h3>
                         <h4>System Login:</h4>
                         <ul>
-                            <li><strong>Owner Account:</strong> Username: "owner" | No password shown for security</li>
-                            <li><strong>Imali Randima Account:</strong> Username: "imali" | Password protected</li>
-                            <li>Managers will have individual accounts created by the owner</li>
+                            <li>Contact the system owner for your login credentials.</li>
+                            <li>Managers will have individual accounts created by the owner.</li>
                         </ul>
                         
                         <h4>Initial Setup:</h4>
@@ -1239,7 +1236,6 @@
                         </ul>
                     </div>
 
-                    <!-- Features Overview -->
                     <div class="help-section">
                         <h3>System Features</h3>
                         <h4>1. Dashboard:</h4>
@@ -1271,7 +1267,7 @@
                             <li>Daily, Weekly, Bi-weekly, and Monthly reports</li>
                             <li>Detailed work hour calculations</li>
                             <li>Break duration tracking</li>
-                            <li>Weekend hour calculations</li>
+                            <li>Weekend hour calculations (Accurate Saturday/Sunday tracking)</li>
                             <li>PDF and Excel export</li>
                         </ul>
                         
@@ -1284,7 +1280,6 @@
                         </ul>
                     </div>
 
-                    <!-- How to Use -->
                     <div class="help-section">
                         <h3>How to Use the System</h3>
                         <h4>For Owners:</h4>
@@ -1309,53 +1304,22 @@
                         <ul>
                             <li>Toggle "Manual Entry Mode" on the dashboard</li>
                             <li>Select a date and add multiple time entries</li>
-                            <li>Use the "+ Add Another Entry" button for multiple records</li>
+                            <li>Use the "+ Add Another Entry" button - the system will automatically suggest the next logical action</li>
                             <li>Submit all entries at once</li>
                         </ul>
                     </div>
 
-                    <!-- Troubleshooting -->
-                    <div class="help-section">
-                        <h3>Troubleshooting</h3>
-                        <h4>Common Issues:</h4>
-                        <ul>
-                            <li><strong>Login Issues:</strong> Check username/password, ensure internet connection</li>
-                            <li><strong>Data Not Syncing:</strong> Refresh the page, check Firebase connection</li>
-                            <li><strong>Staff Not Showing:</strong> Check if staff is assigned to correct shop</li>
-                            <li><strong>Report Issues:</strong> Ensure you've selected correct date range</li>
-                        </ul>
-                        
-                        <h4>Cross-Device Sync:</h4>
-                        <ul>
-                            <li>All data is stored in Firebase Cloud</li>
-                            <li>Changes made on one device appear instantly on others</li>
-                            <li>Works on desktop computers and mobile phones</li>
-                            <li>No installation required - works in any modern browser</li>
-                        </ul>
-                    </div>
-
-                    <!-- System Requirements -->
-                    <div class="help-section">
-                        <h3>System Requirements</h3>
-                        <ul>
-                            <li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
-                            <li>Internet connection for data sync</li>
-                            <li>JavaScript enabled</li>
-                            <li>Recommended: 1280x720 resolution or higher</li>
-                            <li>Mobile friendly: Works on smartphones and tablets</li>
-                        </ul>
-                    </div>
-
-                    <!-- Developer Note -->
                     <div class="developer-note">
                         <h3>About TimeTrack Pro V2.00</h3>
-                        <p><strong>Version:</strong> 2.00 (Complete Professional Edition)</p>
+                        <p><strong>Version:</strong> 2.00(Complete Professional Edition)</p>
                         <p><strong>Developer:</strong> Nimnath Graphic</p>
                         <p><strong>Contact:</strong> nimnathgraphics@gmail.com</p>
                         <p><strong>Special Thanks:</strong> To all Australian business owners who provided feedback for this system</p>
-                        <p><strong>Note:</strong> This system is designed specifically for Australian businesses with multiple shop locations. It includes all features requested for professional time management, cross-device sync, and detailed reporting. The system is continuously improved based on user feedback to meet the needs of modern Australian businesses.</p>
+                        <p><strong>Note:</strong> This system is designed specifically for Australian businesses with multiple shop locations. It includes all features requested for professional time management, cross-device sync, and detailed reporting.</p>
                     </div>
 
+                
+                </div>
                     <!-- Download Documentation -->
                     <div class="help-section text-center">
                         <button class="btn btn-primary" onclick="downloadUserManual()">
@@ -2107,8 +2071,10 @@
                 panel.classList.add('active');
                 liveDisplay.classList.add('hidden');
                 liveEntryFields.classList.add('hidden');
+                document.getElementById('entryType').required = false;
                 resetManualEntries();
             } else {
+                document.getElementById('entryType').required = true;
                 panel.classList.remove('active');
                 liveDisplay.classList.remove('hidden');
                 liveEntryFields.classList.remove('hidden');
@@ -2312,36 +2278,28 @@
                     return;
                 }
 
-                // Create timestamp with proper timezone handling
-                const timestampStr = `${date}T${time}`;
-                const timestamp = new Date(timestampStr);
-                
-                // Check if date is valid
-                if (isNaN(timestamp.getTime())) {
-                    showAlert(`Invalid date/time combination: ${date} ${time}`, 'error');
-                    return;
-                }
-
+                                // Create a date object in local time and then convert to ISO
+                const [hours, minutes] = time.split(':');
+                const entryDate = new Date(date);
+                entryDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                const timestamp = entryDate.toISOString();
                 entries.push({
-                    id: `${date}_${time}_${staffId}_${Math.random().toString(36).substr(2, 9)}`,
+                    id: Date.now() + Math.random(),
                     staffId: staffId,
                     staffName: person.name,
                     shopId: person.shopId,
                     type: type,
-                    timestamp: timestamp.toISOString(),
+                    timestamp: timestamp,
                     date: date,
                     manual: true,
                     recordedBy: currentUser.name
                 });
             }
 
-            // Sort entries by timestamp to ensure chronological order
-            entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
             // Save all entries to Firebase
             const batch = db.batch();
             entries.forEach(entry => {
-                const docRef = db.collection('timeEntries').doc(entry.id);
+                const docRef = db.collection('timeEntries').doc(entry.id.toString());
                 batch.set(docRef, entry);
             });
 
@@ -2357,9 +2315,6 @@
             });
 
             await batch.commit();
-            
-            // Reset manual entries after successful save
-            resetManualEntries();
         }
 
         // ==========================================
@@ -2748,13 +2703,10 @@
                 let workMinutes = 0;
                 let weekendMinutes = 0;
 
-                // Check if the date is a weekend (Saturday=6, Sunday=0)
-                const entryDate = new Date(group.date);
-                const isWeekendDay = entryDate.getDay() === 0 || entryDate.getDay() === 6;
-
                 // Process entries
                 group.entries.forEach(entry => {
                     const entryTime = new Date(entry.timestamp);
+                    const isWeekend = entryTime.getDay() === 0 || entryTime.getDay() === 6;
 
                     switch (entry.type) {
                         case 'clock-in':
@@ -2762,11 +2714,8 @@
                             break;
                         case 'break-start':
                             if (clockIn) {
-                                const workSegmentMinutes = (entryTime - clockIn) / (1000 * 60);
-                                workMinutes += workSegmentMinutes;
-                                if (isWeekendDay) {
-                                    weekendMinutes += workSegmentMinutes;
-                                }
+                                workMinutes += (entryTime - clockIn) / (1000 * 60);
+                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
                             }
                             breakStart = entryTime;
                             break;
@@ -2778,11 +2727,8 @@
                             break;
                         case 'clock-out':
                             if (clockIn) {
-                                const workSegmentMinutes = (entryTime - clockIn) / (1000 * 60);
-                                workMinutes += workSegmentMinutes;
-                                if (isWeekendDay) {
-                                    weekendMinutes += workSegmentMinutes;
-                                }
+                                workMinutes += (entryTime - clockIn) / (1000 * 60);
+                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
                             }
                             clockOut = entryTime;
                             break;
@@ -3096,7 +3042,7 @@
                    - Session management
                 
                 7. SUPPORT
-                   For assistance, contact: nimnathgraphics@gmail.com
+                   For assistance, contact the system administrator
                    Version: 2.00
                    Developer: Nimnath Graphic
                 
@@ -3204,8 +3150,8 @@
             console.log('TimeTrack Pro V2.00 loaded successfully');
             console.log('Features:');
             console.log('- 4-digit Staff IDs starting from 1001');
-            console.log('- Multi-entry manual time entry (FIXED)');
-            console.log('- Detailed report calculations with weekend hours (FIXED)');
+            console.log('- Multi-entry manual time entry');
+            console.log('- Detailed report calculations');
             console.log('- Shop edit functionality');
             console.log('- Secure data deletion with verification');
             console.log('- Complete help & support section');
