@@ -2716,12 +2716,14 @@
                             if (clockIn) {
                                 workMinutes += (entryTime - clockIn) / (1000 * 60);
                                 if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                                clockIn = null; // Reset clockIn after adding to workMinutes
                             }
                             breakStart = entryTime;
                             break;
                         case 'break-end':
                             if (breakStart) {
                                 breakMinutes += (entryTime - breakStart) / (1000 * 60);
+                                breakStart = null; // Reset breakStart
                             }
                             clockIn = entryTime;
                             break;
@@ -2729,6 +2731,7 @@
                             if (clockIn) {
                                 workMinutes += (entryTime - clockIn) / (1000 * 60);
                                 if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                                clockIn = null; // Reset clockIn
                             }
                             clockOut = entryTime;
                             break;
@@ -2784,7 +2787,7 @@
                 }
                 tr.innerHTML = `
                     <td>${row.date}</td>
-                    <td>${row.staffName}</td>
+                    <td>${row.staffName || 'Unknown'}</td>
                     <td>${row.shopName}</td>
                     <td>${row.clockIn}</td>
                     <td>${row.clockOut}</td>
@@ -2966,32 +2969,35 @@
                 return;
             }
 
-            if (currentUser.id === OWNER_ID) {
-                // For owner, just show success message
-                showAlert('Password updated successfully!', 'success');
-            } else {
-                // For managers, update in Firebase
-                try {
-                    // Verify current password
-                    const currentStaff = staff.find(s => s.id === currentUser.id);
-                    if (!currentStaff || currentStaff.password !== currentPassword) {
-                        showAlert('Current password is incorrect', 'error');
-                        return;
-                    }
+            // Verify current password
+            // For owner, we check against the hardcoded password or the one in localStorage
+            // For others, we check against the currentUser object which is synced with Firebase
+            if (currentUser.password !== currentPassword) {
+                showAlert('Current password is incorrect', 'error');
+                return;
+            }
 
+            try {
+                if (currentUser.id === OWNER_ID) {
+                    // For owner, update the local object and storage
+                    currentUser.password = newPassword;
+                    localStorage.setItem('tt_user', JSON.stringify(currentUser));
+                    showAlert('Password updated successfully! (Owner password is saved locally)', 'success');
+                } else {
+                    // For managers, update in Firebase
                     await db.collection('staff').doc(currentUser.id.toString()).update({
                         password: newPassword
                     });
                     
-                    // Update current user object
+                    // Update current user object and local storage
                     currentUser.password = newPassword;
                     localStorage.setItem('tt_user', JSON.stringify(currentUser));
                     
                     showAlert('Password updated successfully!', 'success');
-                } catch (error) {
-                    console.error('Error updating password:', error);
-                    showAlert('Error updating password. Please try again.', 'error');
                 }
+            } catch (error) {
+                console.error('Error updating password:', error);
+                showAlert('Error updating password. Please try again.', 'error');
             }
 
             e.target.reset();
