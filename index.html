@@ -26,11 +26,11 @@
             --danger: #ff5630;
             --warning: #f59e0b;
             --info: #00b8d9;
-            --background: #fbfcff;
-            --surface: #f7faff;
-            --text: #060a0e;
-            --gray: #01020ca7;
-            --border: #124485;
+            --background: #f4f5f7;
+            --surface: #ffffff;
+            --text: #172b4d;
+            --gray: #5e6c84;
+            --border: #e2e8f0;
             --border-radius: 8px;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -1036,7 +1036,7 @@
                     <div class="report-toolbar">
                         <button class="report-period-btn active" onclick="setReportPeriod('daily')">Daily Report</button>
                         <button class="report-period-btn" onclick="setReportPeriod('weekly')">Weekly Report</button>
-                        <button class="report-period-btn" onclick="setReportPeriod('biweekly')">2-Weekly Report</button>
+                        <button class="report-period-btn" onclick="setReportPeriod('biweekly')">Bi-Weekly Report</button>
                         <button class="report-period-btn" onclick="setReportPeriod('monthly')">Monthly Report</button>
                     </div>
 
@@ -1207,183 +1207,168 @@
                 </div>
             </div>
 
-           <!-- Help & Support Tab -->
-<div id="view-help" class="tab-content hidden">
-    <div class="header-bar">
-        <h2 class="page-title">Help & Support Center</h2>
+            <!-- Help & Support Tab -->
+            <div id="view-help" class="tab-content hidden">
+                <div class="header-bar">
+                    <h2 class="page-title">Help & Support Center</h2>
+                </div>
+                
+                <div class="help-content">
+                    <!-- Introduction -->
+                    <div class="help-section">
+                        <h3>Welcome to TimeTrack Pro V2.00</h3>
+                        <p>TimeTrack Pro is a comprehensive staff time management system designed for Australian businesses with multiple shop locations. This system helps you track staff attendance, manage shops, and generate detailed reports.</p>
+                    </div>
+
+                    <!-- Getting Started -->
+                    <div class="help-section">
+                        <h3>Getting Started</h3>
+                        <h4>System Login:</h4>
+                        <ul>
+                            <li><strong>Owner Account:</strong> Username: "owner" | No password shown for security</li>
+                            <li><strong>Imali Randima Account:</strong> Username: "imali" | Password protected</li>
+                            <li>Managers will have individual accounts created by the owner</li>
+                        </ul>
+                        
+                        <h4>Initial Setup:</h4>
+                        <ul>
+                            <li>Login as Owner first</li>
+                            <li>Add your shops in the Shop Management section</li>
+                            <li>Add managers and assign them to shops</li>
+                            <li>Add staff members to each shop</li>
+                        </ul>
+                    </div>
+
+                    <!-- Features Overview -->
+                    <div class="help-section">
+                        <h3>System Features</h3>
+                        <h4>1. Dashboard:</h4>
+                        <ul>
+                            <li>Real-time clock display (Australian time)</li>
+                            <li>Quick time entry for staff</li>
+                            <li>Manual entry mode for past/future entries</li>
+                            <li>Current staff status overview</li>
+                        </ul>
+                        
+                        <h4>2. Staff Management:</h4>
+                        <ul>
+                            <li>Add new staff with 4-digit IDs (starting from 1001)</li>
+                            <li>Assign staff to specific shops</li>
+                            <li>Track staff status (Present/Break/Absent)</li>
+                            <li>Role-based access control</li>
+                        </ul>
+                        
+                        <h4>3. Shop Management:</h4>
+                        <ul>
+                            <li>Add/edit/delete shops</li>
+                            <li>View shop-specific staff details</li>
+                            <li>Assign managers to shops</li>
+                            <li>Shop performance overview</li>
+                        </ul>
+                        
+                        <h4>4. Reports & Analytics:</h4>
+                        <ul>
+                            <li>Daily, Weekly, Bi-weekly, and Monthly reports</li>
+                            <li>Detailed work hour calculations</li>
+                            <li>Break duration tracking</li>
+                            <li>Weekend hour calculations</li>
+                            <li>PDF and Excel export</li>
+                        </ul>
+                        
+                        <h4>5. Role Permissions:</h4>
+                        <ul>
+                            <li><strong>Owner:</strong> Full system access</li>
+                            <li><strong>Full Access Manager:</strong> Almost all owner privileges</li>
+                            <li><strong>Regular Manager:</strong> Can only manage their assigned shop</li>
+                            <li><strong>Staff:</strong> No login - managed by managers</li>
+                        </ul>
+                    </div>
+
+                    <!-- How to Use -->
+                    <div class="help-section">
+                        <h3>How to Use the System</h3>
+                        <h4>For Owners:</h4>
+                        <ul>
+                            <li>Set up your company name in Settings</li>
+                            <li>Add all your shop locations</li>
+                            <li>Create manager accounts and assign them to shops</li>
+                            <li>Grant full access to trusted managers</li>
+                            <li>Monitor all shops from the reports section</li>
+                        </ul>
+                        
+                        <h4>For Managers:</h4>
+                        <ul>
+                            <li>Use the dashboard to record staff time entries</li>
+                            <li>Add new staff to your assigned shop</li>
+                            <li>Monitor your shop's staff attendance</li>
+                            <li>Generate reports for your shop</li>
+                            <li>Regular managers cannot add other managers</li>
+                        </ul>
+                        
+                        <h4>For Multi-Entry:</h4>
+                        <ul>
+                            <li>Toggle "Manual Entry Mode" on the dashboard</li>
+                            <li>Select a date and add multiple time entries</li>
+                            <li>Use the "+ Add Another Entry" button for multiple records</li>
+                            <li>Submit all entries at once</li>
+                        </ul>
+                    </div>
+
+                    <!-- Troubleshooting -->
+                    <div class="help-section">
+                        <h3>Troubleshooting</h3>
+                        <h4>Common Issues:</h4>
+                        <ul>
+                            <li><strong>Login Issues:</strong> Check username/password, ensure internet connection</li>
+                            <li><strong>Data Not Syncing:</strong> Refresh the page, check Firebase connection</li>
+                            <li><strong>Staff Not Showing:</strong> Check if staff is assigned to correct shop</li>
+                            <li><strong>Report Issues:</strong> Ensure you've selected correct date range</li>
+                        </ul>
+                        
+                        <h4>Cross-Device Sync:</h4>
+                        <ul>
+                            <li>All data is stored in Firebase Cloud</li>
+                            <li>Changes made on one device appear instantly on others</li>
+                            <li>Works on desktop computers and mobile phones</li>
+                            <li>No installation required - works in any modern browser</li>
+                        </ul>
+                    </div>
+
+                    <!-- System Requirements -->
+                    <div class="help-section">
+                        <h3>System Requirements</h3>
+                        <ul>
+                            <li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                            <li>Internet connection for data sync</li>
+                            <li>JavaScript enabled</li>
+                            <li>Recommended: 1280x720 resolution or higher</li>
+                            <li>Mobile friendly: Works on smartphones and tablets</li>
+                        </ul>
+                    </div>
+
+                    <!-- Developer Note -->
+                    <div class="developer-note">
+                        <h3>About TimeTrack Pro V2.00</h3>
+                        <p><strong>Version:</strong> 2.00 (Complete Professional Edition)</p>
+                        <p><strong>Developer:</strong> Nimnath Graphic</p>
+                        <p><strong>Contact:</strong> nimnathgraphics@gmail.com</p>
+                        <p><strong>Special Thanks:</strong> To all Australian business owners who provided feedback for this system</p>
+                        <p><strong>Note:</strong> This system is designed specifically for Australian businesses with multiple shop locations. It includes all features requested for professional time management, cross-device sync, and detailed reporting. The system is continuously improved based on user feedback to meet the needs of modern Australian businesses.</p>
+                    </div>
+
+                    <!-- Download Documentation -->
+                    <div class="help-section text-center">
+                        <button class="btn btn-primary" onclick="downloadUserManual()">
+                            <i class="fas fa-download"></i> Download Complete User Manual (PDF)
+                        </button>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray);">
+                            Download the complete user manual for offline reference
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-    
-    <div class="help-content">
-        <!-- Introduction -->
-        <div class="help-section">
-            <h3>Welcome to TimeTrack Pro V2.00</h3>
-            <p>TimeTrack Pro is a professional staff time management system designed specifically for Australian businesses with multiple shop locations. This system helps you efficiently track staff attendance, manage shops, and generate detailed reports.</p>
-        </div>
-
-        <!-- Getting Started -->
-        <div class="help-section">
-            <h3>Getting Started</h3>
-            <h4>System Setup Process:</h4>
-            <ul>
-                <li><strong>Step 1:</strong> Login as System Owner</li>
-                <li><strong>Step 2:</strong> Add your shop locations in Shop Management</li>
-                <li><strong>Step 3:</strong> Create manager accounts for each shop</li>
-                <li><strong>Step 4:</strong> Add staff members to each shop</li>
-                <li><strong>Step 5:</strong> Start recording staff time entries</li>
-            </ul>
-            
-            <h4>User Accounts:</h4>
-            <ul>
-                <li><strong>System Owner:</strong> Has full access to all features</li>
-                <li><strong>Managers:</strong> Can manage staff in their assigned shop</li>
-                <li><strong>Full Access Managers:</strong> Have extended permissions (set by Owner)</li>
-                <li><strong>Staff Members:</strong> No login required - managed by managers</li>
-            </ul>
-        </div>
-
-        <!-- Features Overview -->
-        <div class="help-section">
-            <h3>System Features</h3>
-            <h4>1. Dashboard & Time Entry:</h4>
-            <ul>
-                <li><strong>Live Time Entry:</strong> Record current time for staff</li>
-                <li><strong>Manual Entry Mode:</strong> Enter past/future time records</li>
-                <li><strong>Multi-Entry:</strong> Add multiple time entries at once</li>
-                <li><strong>Staff Search:</strong> Find staff by name or ID (4-digit numbers)</li>
-            </ul>
-            
-            <h4>2. Staff Management:</h4>
-            <ul>
-                <li>Staff IDs are 4-digit numbers starting from 1001</li>
-                <li>Each staff member is assigned to a specific shop</li>
-                <li>Real-time status tracking (Present/Break/Absent)</li>
-                <li>Managers can add staff to their assigned shop</li>
-            </ul>
-            
-            <h4>3. Shop Management:</h4>
-            <ul>
-                <li>Add unlimited shop locations</li>
-                <li>Assign managers to each shop</li>
-                <li>View shop-specific staff details</li>
-                <li>Edit or delete shops as needed</li>
-            </ul>
-            
-            <h4>4. Reports & Analytics:</h4>
-            <ul>
-                <li><strong>Daily Reports:</strong> Today's attendance</li>
-                <li><strong>Weekly Reports:</strong> 7-day summary</li>
-                <li><strong>Bi-Weekly Reports:</strong> 14-day overview</li>
-                <li><strong>Monthly Reports:</strong> Full month analysis</li>
-                <li><strong>Detailed Calculations:</strong> Work hours, break duration, weekend hours</li>
-                <li><strong>Export Options:</strong> PDF and Excel formats</li>
-            </ul>
-            
-            <h4>5. Advanced Features:</h4>
-            <ul>
-                <li><strong>Cross-Device Sync:</strong> Real-time data synchronization</li>
-                <li><strong>Mobile Friendly:</strong> Works on all devices</li>
-                <li><strong>Australian Time Format:</strong> Local time display</li>
-                <li><strong>Data Security:</strong> Secure data management</li>
-            </ul>
-        </div>
-
-        <!-- How to Use -->
-        <div class="help-section">
-            <h3>How to Use the System</h3>
-            
-            <h4>For System Owners:</h4>
-            <ol>
-                <li>Set your company name in Settings</li>
-                <li>Add all your shop locations</li>
-                <li>Create manager accounts for each shop</li>
-                <li>Grant full access to trusted managers if needed</li>
-                <li>Monitor all shops through the reports section</li>
-            </ol>
-            
-            <h4>For Shop Managers:</h4>
-            <ol>
-                <li>Use the Dashboard to record staff time entries</li>
-                <li>Add new staff members to your shop</li>
-                <li>Monitor daily attendance in your shop</li>
-                <li>Generate reports for your shop's performance</li>
-                <li>Note: Regular managers can only manage their assigned shop</li>
-            </ol>
-            
-            <h4>Time Entry Process:</h4>
-            <ol>
-                <li><strong>Select Staff:</strong> Search by name or ID</li>
-                <li><strong>Choose Action:</strong> Clock In, Break Start, Break End, Clock Out</li>
-                <li><strong>Manual Mode:</strong> Toggle for past/future entries</li>
-                <li><strong>Multiple Entries:</strong> Use "Add Another Entry" for multiple records</li>
-                <li><strong>Submit:</strong> All entries are saved instantly</li>
-            </ol>
-            
-            <h4>Report Generation:</h4>
-            <ol>
-                <li>Select report period (Daily/Weekly/Bi-weekly/Monthly)</li>
-                <li>Choose date range</li>
-                <li>Filter by shop if needed</li>
-                <li>Click "Generate Report"</li>
-                <li>Export as PDF or Excel</li>
-            </ol>
-        </div>
-
-        <!-- Troubleshooting -->
-        <div class="help-section">
-            <h3>Troubleshooting Guide</h3>
-            
-            <h4>Common Issues and Solutions:</h4>
-            <ul>
-                <li><strong>Login Issues:</strong> Check username and password. Contact owner if forgotten.</li>
-                <li><strong>Data Not Syncing:</strong> Check internet connection and refresh page.</li>
-                <li><strong>Staff Not Showing:</strong> Verify staff is assigned to correct shop.</li>
-                <li><strong>Report Errors:</strong> Ensure correct date range is selected.</li>
-                <li><strong>Browser Issues:</strong> Use Chrome, Firefox, or Safari for best results.</li>
-            </ul>
-            
-            <h4>Cross-Device Operation:</h4>
-            <ul>
-                <li>All data syncs automatically between devices</li>
-                <li>Works on desktop computers, tablets, and smartphones</li>
-                <li>No app installation required - works in any modern browser</li>
-                <li>Real-time updates - changes appear instantly on all devices</li>
-            </ul>
-        </div>
-
-        <!-- System Requirements -->
-        <div class="help-section">
-            <h3>System Requirements</h3>
-            <ul>
-                <li>Modern web browser (Chrome 80+, Firefox 75+, Safari 13+)</li>
-                <li>Internet connection for data synchronization</li>
-                <li>JavaScript enabled in browser</li>
-                <li>Recommended: 1280×720 screen resolution or higher</li>
-                <li>Mobile: iOS 12+ or Android 8+ for mobile devices</li>
-            </ul>
-        </div>
-
-        <!-- Developer Note -->
-        <div class="developer-note">
-            <h3>About TimeTrack Pro V2.00</h3>
-            <p><strong>Version:</strong> 2.00 (Complete Professional Edition)</p>
-            <p><strong>Developer:</strong> Nimnath Graphic</p>
-            <p><strong>Email:</strong> nimnathgraphics@gmail.com</p>
-            <p><strong>Special Thanks:</strong> To all Australian business owners for their valuable feedback</p>
-            <p><strong>System Description:</strong> This professional staff time management system is designed specifically for Australian businesses with multiple shop locations. It provides comprehensive features for tracking staff attendance, managing shops, and generating detailed reports with cross-device synchronization.</p>
-            <p><strong>Key Features:</strong> Real-time tracking, multi-entry system, detailed reporting, shop management, role-based permissions, mobile compatibility, and secure data management.</p>
-        </div>
-
-        <!-- Download Documentation -->
-        <div class="help-section text-center">
-            <button class="btn btn-primary" onclick="downloadUserManual()">
-                <i class="fas fa-download"></i> Download Complete User Manual (PDF)
-            </button>
-            <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray);">
-                Download the complete user manual for offline reference and training
-            </p>
-        </div>
-    </div>
-</div>
 
     <!-- ============================================= -->
     <!-- MODALS SECTION -->
@@ -2327,24 +2312,36 @@
                     return;
                 }
 
-                const timestamp = new Date(`${date}T${time}:00`).toISOString();
+                // Create timestamp with proper timezone handling
+                const timestampStr = `${date}T${time}`;
+                const timestamp = new Date(timestampStr);
+                
+                // Check if date is valid
+                if (isNaN(timestamp.getTime())) {
+                    showAlert(`Invalid date/time combination: ${date} ${time}`, 'error');
+                    return;
+                }
+
                 entries.push({
-                    id: Date.now() + Math.random(),
+                    id: `${date}_${time}_${staffId}_${Math.random().toString(36).substr(2, 9)}`,
                     staffId: staffId,
                     staffName: person.name,
                     shopId: person.shopId,
                     type: type,
-                    timestamp: timestamp,
+                    timestamp: timestamp.toISOString(),
                     date: date,
                     manual: true,
                     recordedBy: currentUser.name
                 });
             }
 
+            // Sort entries by timestamp to ensure chronological order
+            entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
             // Save all entries to Firebase
             const batch = db.batch();
             entries.forEach(entry => {
-                const docRef = db.collection('timeEntries').doc(entry.id.toString());
+                const docRef = db.collection('timeEntries').doc(entry.id);
                 batch.set(docRef, entry);
             });
 
@@ -2360,6 +2357,9 @@
             });
 
             await batch.commit();
+            
+            // Reset manual entries after successful save
+            resetManualEntries();
         }
 
         // ==========================================
@@ -2748,10 +2748,13 @@
                 let workMinutes = 0;
                 let weekendMinutes = 0;
 
+                // Check if the date is a weekend (Saturday=6, Sunday=0)
+                const entryDate = new Date(group.date);
+                const isWeekendDay = entryDate.getDay() === 0 || entryDate.getDay() === 6;
+
                 // Process entries
                 group.entries.forEach(entry => {
                     const entryTime = new Date(entry.timestamp);
-                    const isWeekend = entryTime.getDay() === 0 || entryTime.getDay() === 6;
 
                     switch (entry.type) {
                         case 'clock-in':
@@ -2759,8 +2762,11 @@
                             break;
                         case 'break-start':
                             if (clockIn) {
-                                workMinutes += (entryTime - clockIn) / (1000 * 60);
-                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                                const workSegmentMinutes = (entryTime - clockIn) / (1000 * 60);
+                                workMinutes += workSegmentMinutes;
+                                if (isWeekendDay) {
+                                    weekendMinutes += workSegmentMinutes;
+                                }
                             }
                             breakStart = entryTime;
                             break;
@@ -2772,8 +2778,11 @@
                             break;
                         case 'clock-out':
                             if (clockIn) {
-                                workMinutes += (entryTime - clockIn) / (1000 * 60);
-                                if (isWeekend) weekendMinutes += (entryTime - clockIn) / (1000 * 60);
+                                const workSegmentMinutes = (entryTime - clockIn) / (1000 * 60);
+                                workMinutes += workSegmentMinutes;
+                                if (isWeekendDay) {
+                                    weekendMinutes += workSegmentMinutes;
+                                }
                             }
                             clockOut = entryTime;
                             break;
@@ -3087,7 +3096,7 @@
                    - Session management
                 
                 7. SUPPORT
-                   For assistance, contact the system administrator
+                   For assistance, contact: nimnathgraphics@gmail.com
                    Version: 2.00
                    Developer: Nimnath Graphic
                 
@@ -3195,8 +3204,8 @@
             console.log('TimeTrack Pro V2.00 loaded successfully');
             console.log('Features:');
             console.log('- 4-digit Staff IDs starting from 1001');
-            console.log('- Multi-entry manual time entry');
-            console.log('- Detailed report calculations');
+            console.log('- Multi-entry manual time entry (FIXED)');
+            console.log('- Detailed report calculations with weekend hours (FIXED)');
             console.log('- Shop edit functionality');
             console.log('- Secure data deletion with verification');
             console.log('- Complete help & support section');
